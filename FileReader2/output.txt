@@ -1,0 +1,3038 @@
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-1  2  PMの設定 
+本章の手順は全ての HaaS PM に対して実施 してください 。 
+■HaaS PM へのログイン  
+各設定手順では、はじめに HaaS  PMへのログインが必要です。  
+以降に示す手順で HaaS PM にログインする場合はコンソールで接続します。  
+注： rootユーザを使用し実施してください。  
+ 
+2.1 HaaSホストの環境構築  
+HaaSホストの環境構築手順を以下に示します。  
+ 
+STEP 操作 
+1 HaaSホスト名を設定します。  
+1-1 HaaSホスト名設定ファイルを更新します。  
+＜入力フォーマット＞  
+# vi /etc/hostname  
+/etc/hostname ファイルに、設定したいホスト名を記載し保存 します。  
+以下は記載例です。  
+haasctlpm1 0 
+ 
+注1： 既に記載されている ホスト名は削除するか、または ”#”でコメントアウト します。  
+注2： ホスト名については『 BoxUP環境定義書 _ホスト名 』を参照してください。  
+ 
+1-2 設定ファイルを読み込みます。  
+＜入力フォーマット＞  
+# hostname -F /etc/hostname  
+ 
+1-3 設定が反映されていることを確認します。  
+＜入力フォーマット＞  
+# hostname  
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-2  2.2 内部通信用ネットワーク の設定  
+内部通信用 ブリッジの作成手順を以下に示します。  
+ 
+STEP 操作 
+1 ブリッジ （br-haas -mng）を作成します。  
+1-1 内部通信用ブリッジ（ br-haas -mng）を作成します。  
+＜入力フォーマット＞  
+# nmcli c add type bridge ifname br -haas-mng con-name br-haas-mng 
+# nmcli c mod br -haas-mng ipv4.method manual ipv4.addresses " ＜IPアドレス ／プ
+レフィックス＞ " 
+# nmcli c up br -haas-mng 
+ 
+変数 説明 
+＜IPアドレス ／プレフィッ
+クス＞ 『BoxUP環境定義書 _IPアドレス 』の内部接続を参照してく
+ださい。  
+ 
+1-2 物理インタフェースをブリッジに接続します。  
+＜入力フォーマット＞  
+# nmcli c mod eno1 master br-haas-mng 
+# nmcli c mod eno2 master br -haas-mng 
+# nmcli c mod eno3 master br -haas-mng 
+# nmcli c mod eno4 master br -haas-mng 
+ 
+1-3 物理インタフェースを upします。  
+＜入力フォーマット＞  
+# nmcli c up eno1  
+# nmcli c up eno2  
+# nmcli c up eno3  
+# nmcli c up eno4  
+ 
+1-4 物理インタフェースの autoconnect 設定を確認します。  
+＜入力フォーマット＞  
+# nmcli c s eno1 |grep connection.autoconnect:  
+# nmcli c s eno2 |grep connection.autoconnect:  
+# nmcli c s eno3 |grep connection.autoconnect:  
+# nmcli c s eno4 |grep connection.autoconnect:  
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-3  「connection.autoconnect 」が「 no」となっていることを確認します。  
+connection.autoconnect:                 no  
+ 
+1-5 物理インタフェースの autoconnect 設定を yesに設定します。  
+＜入力フォーマット＞  
+# nmcli c mod eno1 autoconnect yes  
+# nmcli c mod eno2 autoconnect yes  
+# nmcli c mod eno3 autoconnect yes  
+# nmcli c mod eno4 autoconnect yes  
+ 
+1-6 物理インタフェースの autoconnect 設定を確認します。  
+＜入力フォーマット＞  
+# nmcli c s eno1 |grep connection.autoconnect:  
+# nmcli c s eno2 |grep connection.autoconnect:  
+# nmcli c s eno3 |grep connection.autoconnect:  
+# nmcli c s eno4 |grep connection.autoconnect:  
+ 
+「connection.autoconnect 」が「 yes」となってい ることを確認します。  
+connection.autoconnect:                 yes  
+ 
+ 
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-4  2.3 外部通信用 ネットワーク の設定  
+外部通信用 ブリッジの作成手順を以下に示します。  
+ 
+STEP 操作 
+1 ブリッジ （br-haas -op）を作成します。  
+1-1 外部通信用ブリッジ（ br-haas -op）を作成します。  
+＜入力フォーマット＞  
+# nmcli c add type bridge ifname br -haas-op con-name br-haas-op 
+# nmcli c mod br-haas-op ipv4.method manual ipv4.addresses " ＜IPアドレス ／プ
+レフィックス＞ " 
+# nmcli c up br -haas-op 
+ 
+変数 説明 
+＜IPアドレス ／プレフィッ
+クス＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を参照してく
+ださい。  
+ 
+1-2 VLANインタフェースを作成します。  
+＜入力フォーマット＞  
+# nmcli c add type vlan ifname ens1f0. ＜VLAN ID ＞ dev ens1f0 id ＜VLAN ID ＞ 
+# nmcli c add type vlan ifname ens1f1. ＜VLAN ID ＞ dev ens1f1 id ＜VLAN ID ＞ 
+# nmcli c add type vlan ifname ens2f0. ＜VLAN ID ＞ dev ens2f0 id ＜VLAN ID ＞ 
+# nmcli c add type vlan ifname ens2f1. ＜VLAN ID ＞ dev ens2f1 id ＜VLAN ID ＞ 
+ 
+変数 説明 
+＜VLAN ID ＞ 外部接続の VLAN ID  
+『BoxUP環境定義書 _IPアドレス 』の外部接続を参照してく
+ださい。  
+ 
+1-3 作成したインタフェースをブリッジに接続します。  
+＜入力フォーマット＞  
+# nmcli c mod vlan -ens1f0. ＜VLAN ID ＞ master br -haas-op 
+# nmcli c mod vlan -ens1f1. ＜VLAN ID ＞ master br -haas-op 
+# nmcli c mod vlan -ens2f0. ＜VLAN ID ＞ master br -haas-op 
+# nmcli c mod vlan -ens2f1. ＜VLAN ID ＞ master br -haas-op 
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-5  変数 説明 
+＜VLAN ID ＞ 外部接続の VLAN ID  
+『BoxUP環境定義書 _IPアドレス 』の外部接続を参照してく
+ださい。  
+ 
+1-4 作成したインタフェースを upします。  
+＜入力フォーマット＞  
+# nmcli c up vlan -ens1f0. ＜VLAN ID ＞ 
+# nmcli c up vlan -ens1f1. ＜VLAN ID ＞ 
+# nmcli c up vlan-ens2f0. ＜VLAN ID ＞ 
+# nmcli c up vlan -ens2f1. ＜VLAN ID ＞ 
+ 
+変数 説明 
+＜VLAN ID ＞ 外部接続の VLAN ID  
+『BoxUP環境定義書 _IPアドレス 』の外部接続を参照してく
+ださい。  
+ 
+2 外部通信用ネットワークの default gateway 設定を行います。  
+2-1 default gateway を設定します。  
+＜入力フォーマット＞  
+# nmcli c m br -haas-op ipv4.gateway "＜nexthop のIPアドレス＞ " 
+ 
+変数 説明 
+＜nexthopのIPアドレス＞  O&M専用ルータの nexthopのIPアドレス  
+ 
+2-2 設定を反映します。  
+＜入力フォーマット＞  
+# nmcli c reload 
+# nmcli c down br -haas-op 
+# nmcli c up br -haas-op 
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-6  2.4 Zabbix  Agentの設定  
+Zabbix  Agentの設定手順を以下に示します。  
+ 
+STEP 操作 
+1 Zabbix Agentのバージョン情報を確認します。  
+＜入力フォーマット＞  
+# zabbix_agentd --version 
+「4.0.22」であることを確認します 。 
+zabbix_agentd (daemon) (Zabbix) 4.0.22 
+Revision 073cb9f 29 June 2020, compilation time: Jun 29 2020 14:13:44  
+ 
+Copyright (C) 2020 Zabbix SIA  
+License GPLv2+: GNU GPL version 2 or later 
+<http://gnu.org/licenses/gpl.html>.  
+This is free software: you are free to change and redistribute it 
+according to  
+the license. There is NO WARRANTY, to the extent permitted by law.  
+ 
+This product includes software developed by the OpenSS L Project  
+for use in the OpenSSL Toolkit (http://www.openssl.org/).  
+ 
+Compiled with OpenSSL 1.0.2k -fips  26 Jan 2017  
+Running with OpenSSL 1.0.2k -fips  26 Jan 2017  
+ 
+2 SELinux を無効化します。  
+2-1 SELinux の設定状況を確認します 。 
+＜入力フォーマット＞  
+# getenforce  
+「Disable d」と表示される 場合  
+SELinuxは既に無効化されているため、 STEP 3に進みます。  
+Disabled  
+ 
+「Enforci ng」と表示される場合  
+SELinuxが有効化されています。 無効化するため にSTEP 2-2に進みます。  
+Enforcing  
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-7  2-2 設定ファイルを編集し、 SELinux を無効化します。  
+＜入力フォーマット＞  
+# vi /etc/selinux/config  
+以下となるように設定します（★印部分）。  
+# This file controls the state of SELinux on the system.  
+# SELINUX= can take one of these three values:  
+#     enforcing - SELinux security policy is enforced.  
+#     permissive - SELinux prints warnings instead of enforcing.  
+#     disabled - No SELinux policy is loaded.  
+SELINUX= disabled  ★ 
+# SELINUXTYPE= can take one of these two values:  
+#     targeted - Targeted processes are protected,  
+#     minimum - Modification of targeted policy. Only selected 
+processes are protected.  
+#     mls - Multi Level Security protection.  
+SELINUXTYPE=targeted  
+ 
+2-3 再起動します。  
+＜入力フォーマット＞  
+# shutdown -r now 
+ 
+2-4 再度、SELinux の設定状況を確認します。  
+＜入力フォーマット＞  
+# getenforce  
+「Disabled」と表示されることを確認します。  
+Disabled  
+ 
+3 firewall設定を行います。  
+＜入力フォーマット＞  
+# firewall -cmd --add-port=10050/tcp --permanent  
+# firewall -cmd --reload 
+# firewall -cmd --list-all 
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-8  4 設定ファイルを修正します。  
+4-1 Zabbix Agent の設定ファイルを修正します。  
+＜入力フォーマット＞  
+# vi /etc/zabbix/zabbix_agentd.conf  
+以下となるように設定します（★印部分）。  
+# This is a configuration file for Zabbix agent daemon (Unix)  
+# To get more information about Zabbix, visit http://www.zabbix.com  
+ 
+############ GENERAL PARAMETERS #################  
+ 
+### Option: PidFile  
+#       Name of PID file.  
+# 
+# Mandatory: no  
+# Default:  
+# PidFile=/tmp/zabbix_agentd.pid  
+ 
+PidFile=/var/run/zabbix/zabbix_agentd.pid ★ 
+ 
+### Option: LogType  
+#       Specifies where log messages are written to:  
+#               system  - syslog 
+#               file    - file specified with LogFile parameter  
+#               console - standard output  
+# 
+# Mandatory: no  
+# Default:  
+# LogType=file  
+ 
+### Option: LogFile  
+#       Log file name for LogType 'file' parameter.  
+# 
+# Mandatory: yes, if LogType is set to file, otherwise no  
+# Default:  
+# LogFile=  
+ 
+LogFile=/var/log/zabbix/zabbix_agentd.log ★ 
+ 
+### Option: LogFileSize  
+#       Maximum size of log file in MB.  
+#       0 - disable automatic log rotation.  
+# 
+# Mandatory: no  
+# Range: 0 -1024 
+# Default:  
+# LogFileSize=1  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-9   
+LogFileSize=0 ★ 
+ 
+### Option: DebugLevel  
+#       Specifies debug level:  
+#       0 - basic information about starting and stopping of Zabbix 
+processes  
+#       1 - critical information  
+#       2 - error information  
+#       3 - warnings  
+#       4 - for debugging (produces lots of information)  
+#       5 - extended debugging (produces even more information)  
+# 
+# Mandatory: no  
+# Range: 0 -5 
+# Default:  
+# DebugLevel=3  
+ 
+### Option: SourceIP  
+#       Source IP address for outgoing connec tions. 
+# 
+# Mandatory: no  
+# Default:  
+# SourceIP=  
+ 
+### Option: EnableRemoteCommands  
+#       Whether remote commands from Zabbix server are allowed.  
+#       0 - not allowed  
+#       1 - allowed 
+# 
+# Mandatory: no  
+# Default:  
+# EnableRemoteCommands=0  
+ 
+EnableRemoteCommands=1 ★ 
+ 
+### Option: LogRemoteCommands  
+#       Enable logging of executed shell commands as warnings.  
+#       0 - disabled  
+#       1 - enabled 
+# 
+# Mandatory: no  
+# Default:  
+# LogRemoteCommands=0  
+ 
+##### Passive checks  related 
+ 
+### Option: Server  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-10  #       List of comma delimited IP addresses, optionally in CIDR notation, 
+or DNS names of Zabbix servers and Zabbix proxies.  
+#       Incoming connections will be accepted only from the hosts listed 
+here. 
+#       If IPv6 suppor t is enabled then '127.0.0.1', '::127.0.0.1', 
+'::ffff:127.0.0.1' are treated equally  
+#       and '::/0' will allow any IPv4 or IPv6 address.  
+#       '0.0.0.0/0' can be used to allow any IPv4 address.  
+#       Example: 
+Server=127.0.0.1,192.168.1.0/24,::1,200 1:db8::/32,zabbix.example.com  
+# 
+# Mandatory: yes, if StartAgents is not explicitly set to 0  
+# Default:  
+# Server=  
+ 
+Server=0.0.0.0/0 ★ 
+ 
+### Option: ListenPort  
+#       Agent will listen on this port for connections from the server.  
+# 
+# Mandatory: no  
+# Range: 1024 -32767 
+# Default:  
+# ListenPort=10050  
+ 
+### Option: ListenIP  
+#       List of comma delimited IP addresses that the agent should listen 
+on. 
+#       First IP address is sent to Zabbix server if connecting to it to 
+retrieve list of active checks.  
+# 
+# Mandatory: no  
+# Default:  
+# ListenIP=0.0.0.0  
+ 
+### Option: StartAgents  
+#       Number of pre -forked instances of zabbix_agentd that process passive 
+checks. 
+#       If set to 0, disables passive checks and the agent will not listen 
+on any TCP port.  
+# 
+# Mandatory: no  
+# Range: 0 -100 
+# Default:  
+# StartAgents=3  
+ 
+##### Active checks related  
+ 
+### Option: ServerActive  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-11  #       List of comma delimited IP:port (or DNS name:port) pairs of Zabbix 
+servers and Zabbix proxies for active checks.  
+#       If port is not specified, default port is used.  
+#       IPv6 addresses must be enclosed in square brackets if port for that 
+host is specified.  
+#       If port is not specified, square brackets for IPv6 addresses are 
+optional.  
+#       If this parameter is not specified, a ctive checks are disabled.  
+#       Example: 
+ServerActive=127.0.0.1:20051,zabbix.domain,[::1]:30051,::1,[12fc::1]  
+# 
+# Mandatory: no  
+# Default:  
+# ServerActive=  
+ 
+ServerActive= ＜内部通信用 NWのVIP＞ ★ 
+ 
+### Option: Hostname  
+#       Unique, case sensitive hostname.  
+#       Required for active checks and must match hostname as configured on 
+the server.  
+#       Value is acquired from HostnameItem if undefined.  
+# 
+# Mandatory: no  
+# Default:  
+# Hostname=  
+ 
+#Hostname=Zabbix server  ★”#”でコメントアウト  
+ 
+### Option: HostnameItem  
+#       Item used for generating Hostname if it is undefined. Ignored if 
+Hostname is defined.  
+#       Does not support UserParameters or aliases.  
+# 
+# Mandatory: no  
+# Default:  
+# HostnameItem=system.hostname  
+ 
+HostnameItem=system.hostname ★ 
+ 
+### Option: HostMetadata  
+#       Optional parameter that defines host metadata.  
+#       Host metadata is used at host auto -registration process.  
+#       An agent will issue an error and not start if the value is over 
+limit of 255 characters.  
+#       If not def ined, value will be acquired from HostMetadataItem.  
+# 
+# Mandatory: no  
+# Range: 0 -255 characters  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-12  # Default:  
+# HostMetadata=  
+ 
+HostMetadata=HaaSPM ★ 
+ 
+### Option: HostMetadataItem  
+#       Optional parameter that defines an item used for getting host 
+metadata.  
+#       Host metadata is used at host auto -registration process.  
+#       During an auto -registration request an agent will log a warning 
+message if  
+#       the value returned by specified item is over limit of 255 
+characters.  
+#       This option is only used when HostMetadata is not defined.  
+# 
+# Mandatory: no  
+# Default:  
+# HostMetadataItem=  
+ 
+### Option: RefreshActiveChecks  
+#       How often list of active checks is refreshed, in seconds.  
+# 
+# Mandatory: no  
+# Range: 60 -3600 
+# Default:  
+# RefreshActive Checks=120  
+ 
+RefreshActiveChecks=120 ★ 
+ 
+### Option: BufferSend  
+#       Do not keep data longer than N seconds in buffer.  
+# 
+# Mandatory: no  
+# Range: 1 -3600 
+# Default:  
+# BufferSend=5  
+ 
+### Option: BufferSize  
+#       Maximum number of values in a memory buffer. The agent will send  
+#       all collected data to Zabbix Server or Proxy if the buffer is full.  
+# 
+# Mandatory: no  
+# Range: 2 -65535 
+# Default:  
+# BufferSize=100  
+ 
+### Option: MaxLinesPerSecond  
+#       Maximum number of new lines the agent will send pe r second to Zabbix 
+Server 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-13  #       or Proxy processing 'log' and 'logrt' active checks.  
+#       The provided value will be overridden by the parameter 'maxlines',  
+#       provided in 'log' or 'logrt' item keys.  
+# 
+# Mandatory: no  
+# Range: 1 -1000 
+# Default:  
+# MaxLinesPerSecond=20  
+ 
+############ ADVANCED PARAMETERS #################  
+ 
+### Option: Alias  
+#       Sets an alias for an item key. It can be used to substitute long and 
+complex item key with a smaller and simpler one.  
+#       Multiple Alias parameters may  be present. Multiple parameters with 
+the same Alias key are not allowed.  
+#       Different Alias keys may reference the same item key.  
+#       For example, to retrieve the ID of user 'zabbix':  
+#       Alias=zabbix.userid:vfs.file.regexp[/etc/passwd,^zabbix:.:([0 -
+9]+),,,, ¥1] 
+#       Now shorthand key zabbix.userid may be used to retrieve data.  
+#       Aliases can be used in HostMetadataItem but not in HostnameItem 
+parameters.  
+# 
+# Mandatory: no  
+# Range:  
+# Default:  
+ 
+### Option: Timeout  
+#       Spend no more than Timeout seconds on processing  
+# 
+# Mandatory: no  
+# Range: 1 -30 
+# Default:  
+# Timeout=3  
+ 
+Timeout=20 ★ 
+ 
+### Option: AllowRoot  
+#       Allow the agent to run as 'root'. If disabled and the agent is 
+started by 'root', the agent  
+#       will try to switch to the user specified by the User configuration 
+option instead.  
+#       Has no effect if started under a regular user.  
+#       0 - do not allow  
+#       1 - allow 
+# 
+# Mandatory: no  
+# Default:  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-14  # AllowRoot=0  
+ 
+AllowRoot=1 ★ 
+ 
+### Option: User  
+#       Drop privileges to a specific, existing user on the system.  
+#       Only has effect if run as 'root' and AllowRoot is disabled.  
+# 
+# Mandatory: no  
+# Default:  
+# User=zabbix  
+ 
+### Option: Include  
+#       You  may include individual files or all files in a directory in the 
+configuration file.  
+#       Installing Zabbix will create include directory in /usr/local/etc, 
+unless modified during the compile time.  
+# 
+# Mandatory: no  
+# Default:  
+# Include=  
+ 
+Include=/etc/z abbix/zabbix_agentd.d/*.conf ★ 
+ 
+# Include=/usr/local/etc/zabbix_agentd.userparams.conf  
+# Include=/usr/local/etc/zabbix_agentd.conf.d/  
+# Include=/usr/local/etc/zabbix_agentd.conf.d/*.conf  
+ 
+####### USER -DEFINED MONITORED PARAMETERS #######  
+ 
+### Option: UnsafeUserParameters  
+#       Allow all characters to be passed in arguments to user -defined 
+parameters.  
+#       The following characters are not allowed:  
+#       ¥ ' " ` * ? [ ] { } ~ $ ! & ; ( ) < > | # @  
+#       Additionally, newline characters a re not allowed.  
+#       0 - do not allow  
+#       1 - allow 
+# 
+# Mandatory: no  
+# Range: 0 -1 
+# Default:  
+# UnsafeUserParameters=0  
+ 
+UnsafeUserParameters=1 ★ 
+ 
+### Option: UserParameter  
+#       User -defined parameter to monitor. There can be several user -defined 
+parameters.  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-15  #       Format: UserParameter=<key>,<shell command>  
+#       See 'zabbix_agentd' directory for examples.  
+# 
+# Mandatory: no  
+# Default:  
+# UserParameter=  
+ 
+####### LOADABLE MODULES #######  
+ 
+### Option: LoadModulePath  
+#       Full path to location of agent modules.  
+#       Default depends on compilation options.  
+#       To see the default path run command "zabbix_agentd --help". 
+# 
+# Mandatory: no  
+# Default:  
+# LoadModulePath=${libdir}/modules  
+ 
+### Option: LoadModule  
+#       Module to load at  agent startup. Modules are used to extend 
+functionality of the agent.  
+#       Formats:  
+#               LoadModule=<module.so>  
+#               LoadModule=<path/module.so>  
+#               LoadModule=</abs_path/module.so>  
+#       Either the module must be lo cated in directory specified by 
+LoadModulePath or the path must precede the module name.  
+#       If the preceding path is absolute (starts with '/') then 
+LoadModulePath is ignored.  
+#       It is allowed to include multiple LoadModule parameters.  
+# 
+# Mandat ory: no 
+# Default:  
+# LoadModule=  
+ 
+####### TLS -RELATED PARAMETERS #######  
+ 
+### Option: TLSConnect  
+#       How the agent should connect to server or proxy. Used for active 
+checks. 
+#       Only one value can be specified:  
+#               unencrypted - connect without encryption  
+#               psk         - connect using TLS and a pre -shared key  
+#               cert        - connect using TLS and a certificate  
+# 
+# Mandatory: yes, if TLS certificate or PSK parameters are defined (even 
+for 'unencrypted' connection)  
+# Default:  
+# TLSConnect=unencrypted  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-16   
+### Option: TLSAccept  
+#       What incoming connections to accept.  
+#       Multiple values can be specified, separated by comma:  
+#               unencrypted - accept connections without encrypti on 
+#               psk         - accept connections secured with TLS and a pre -
+shared key  
+#               cert        - accept connections secured with TLS and a 
+certificate  
+# 
+# Mandatory: yes, if TLS certificate or PSK parameters are defined (even 
+for 'unencrypted' connection)  
+# Default:  
+# TLSAccept=unencrypted  
+ 
+### Option: TLSCAFile  
+#       Full pathname of a file containing the top -level CA(s) certificates 
+for 
+#       peer certificate verification.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSCAFile=  
+ 
+### Option: TLSCRLFile  
+#       Full pathname of a file containing revoked certificates.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSCRLFile=  
+ 
+### Option: TLSServerCertIssuer  
+#      Allowed server certificate issuer.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSServerCertIssuer=  
+ 
+### Option: TLSServerCertSubject  
+#      Allowed server certificate subject.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSServerCertSubject=  
+ 
+### Option: TLSCertFile  
+#       Full pathname of a file containing the agent certificate or 
+certificate chain.  
+# 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-17  # Mandatory: no  
+# Default:  
+# TLSCertFile=  
+ 
+### Option: TLSKeyFile  
+#       Full pathname of a file containing the agent private key.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSKeyFile=  
+ 
+### Option: TLSPSKIdentity  
+#       Unique, case sensitive string used to identify the pre-shared key.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSPSKIdentity=  
+ 
+### Option: TLSPSKFile  
+#       Full pathname of a file containing the pre -shared key.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSPSKFile=  
+ 
+####### For advanced users - TLS ciphersuite selection cri teria #######  
+ 
+### Option: TLSCipherCert13  
+#       Cipher string for OpenSSL 1.1.1 or newer in TLS 1.3.  
+#       Override the default ciphersuite selection criteria for certificate -
+based encryption.  
+# 
+# Mandatory: no  
+# Default:  
+# TLSCipherCert13=  
+ 
+### Option: TLSCipherCert  
+#       GnuTLS priority string or OpenSSL (TLS 1.2) cipher string.  
+#       Override the default ciphersuite selection criteria for certificate -
+based encryption.  
+#       Example for GnuTLS:  
+#               NONE:+V ERS-TLS1.2:+ECDHE -RSA:+RSA:+AES -128-GCM:+AES -128-
+CBC:+AEAD:+SHA256:+SHA1:+CURVE -ALL:+COMP -NULL:+SIGN -ALL:+CTYPE -X.509 
+#       Example for OpenSSL:  
+#               EECDH+aRSA+AES128:RSA+aRSA+AES128  
+# 
+# Mandatory: no  
+# Default:  
+# TLSCipherCert=  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-18   
+### Option: TLSCipherPSK13  
+#       Cipher string for OpenSSL 1.1.1 or newer in TLS 1.3.  
+#       Override the default ciphersuite selection criteria for PSK -based 
+encryption.  
+#       Example:  
+#               TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256  
+# 
+# Mandatory: no  
+# Default:  
+# TLSCipherPSK13=  
+ 
+### Option: TLSCipherPSK  
+#       GnuTLS priority string or OpenSSL (TLS 1.2) cipher string.  
+#       Override the default ciphersuite selection criteria for PSK -based 
+encryption.  
+#       Example for GnuTLS:  
+#               NONE:+VERS -TLS1.2:+ECDHE -PSK:+PSK:+AES -128-GCM:+AES -128-
+CBC:+AEAD:+SHA256:+SHA1:+CURVE -ALL:+COMP -NULL:+SIGN -ALL 
+#       Example for OpenSSL:  
+#               kECDHEPSK+AES128:kPSK+AES128  
+# 
+# Mandatory: no  
+# Default:  
+# TLSCipherPSK=  
+ 
+### Option: TLSCip herAll13  
+#       Cipher string for OpenSSL 1.1.1 or newer in TLS 1.3.  
+#       Override the default ciphersuite selection criteria for certificate - 
+and PSK-based encryption.  
+#       Example:  
+#               
+TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA25 6:TLS_AES_128_GCM_SHA256  
+# 
+# Mandatory: no  
+# Default:  
+# TLSCipherAll13=  
+ 
+### Option: TLSCipherAll  
+#       GnuTLS priority string or OpenSSL (TLS 1.2) cipher string.  
+#       Override the default ciphersuite selection criteria for certificate - 
+and PSK-based encryption.  
+#       Example for GnuTLS:  
+#               NONE:+VERS -TLS1.2:+ECDHE -RSA:+RSA:+ECDHE -PSK:+PSK:+AES -128-
+GCM:+AES -128-CBC:+AEAD:+SHA256:+SHA1:+CURVE -ALL:+COMP -NULL:+SIGN -
+ALL:+CTYPE -X.509 
+#       Example for OpenSSL:  
+#               
+EECDH+aRSA+AES128:RSA+aRSA+AES128:kECDHEPSK+AES128:kPSK+AES128  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-19  # 
+# Mandatory: no  
+# Default:  
+# TLSCipherAll=  
+ 
+#UserParameter ★ 
+# common ★ 
+UserParameter=hostname_check,hostname >/dev/null 2>&1;echo $? ★ 
+UserParameter=ping[*],ping -c1 -w 25 $1 >/dev/null 2>&1;ech o $? ★ 
+ 
+# crond ★ 
+UserParameter=crond.ps_sys,ps -ef | grep crond | awk '{print $3}' | grep 
+"^1$" | wc -l ★ 
+ 
+# PID Check ★ 
+UserParameter=prc_chk.pid[*],pgrep $1 | head -1 ★ 
+UserParameter=container.chk[*],docker inspect $1 2>/dev/nul l | grep -e 
+'"Status": "running"' | wc -l ★ 
+UserParameter=psc_status.chk[*],pcs status 2>/dev/nul l | grep $1 | grep 
+"Started"| wc -l ★ 
+UserParameter=psc_status.pcs,pcs status 2>/dev/nul l | grep Online | wc -l 
+★ 
+ 
+変数 説明 
+＜内部通信用 NWのVIP＞ 『BoxUP環境定義書 _IPアドレス 』の内部接続 を参照してく
+ださい。  
+ 
+4-2 Zabbix Agent のserviceファイルを修正します 。 
+#vi /usr/lib/systemd/system/zabbix -agent.service  
+以下となるように修正します（ ★印部分 ）。 
+[Service]  
+#User=zabbix  ★”#”でコメントアウト  
+#Group=zabbix  ★”#”でコメントアウト  
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-20  5 Zabbix Agent を再起動します。  
+＜入力フォーマット＞  
+# systemctl daemon-reload 
+# systemctl restart zabbix -agent 
+# systemctl status zabbix -agent 
+エラーがなく、「 Active: active (running) 」と表示されることを確認します。  
+● zabbix-agent.service - Zabbix Agent  
+   Loaded: loaded (/usr/lib/systemd/system/zabbix -agent.service; disabled; vendor 
+preset: disabled)  
+   Active: active (running)  since Wed 2020 -11-11 21:52:41 JST; 2s ago  
+  Process: 2271 ExecStart=/usr/sbin/zabbix_agentd -c $CONFFILE (code=exited, 
+status=0/ SUCCESS)  
+ Main PID: 2273 (zabbix_agentd)  
+    Tasks: 6 (limit: 101391)  
+   Memory: 4.1M  
+   CGroup: /system.slice/zabbix -agent.service  
+           tq2273 /usr/sbin/zabbix_agentd -c /etc/zabbix/zabbix_agentd.conf  
+           tq2274 /usr/sbin/zabbix_agentd: colle ctor [idle 1 sec]  
+           tq2275 /usr/sbin/zabbix_agentd: listener #1 [waiting for connection]  
+           tq2276 /usr/sbin/zabbix_agentd: listener #2 [waiting for connection]  
+           tq2277 /usr/sbin/zabbix_agentd: listener #3 [waiting for connection ] 
+           mq2278 /usr/sbin/zabbix_agentd: active checks #1 [idle 1 sec]  
+ 
+11月 11 21:52:41 haas2 systemd[1]: Starting Zabbix Agent...  
+11月 11 21:52:41 haas2 systemd[1]: zabbix -agent.service: Supervising process 2273 
+which is not our child. We'll most likel y not notice when it exits.  
+11月 11 21:52:41 haas2 systemd[1]: Started Zabbix Agent.  
+ 
+6 Zabbix Agent の自動起動設定をします。  
+＜入力フォーマット＞  
+# systemctl enable zabbix -agent 
+# systemctl is -enabled zabbix -agent 
+「enable d」と表示されることを確認します。  
+# systemctl is -enabled zabbix-agent 
+enabled 
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-21  2.5 NTPの設定  
+NTPの設定手順を以下に示します。  
+ 
+STEP 操作 
+1 設定ファイルを修正します。  
+＜入力フォーマット＞  
+# vi /etc/chrony.conf  
+以下となるように設定します（★印部分）。  
+# Use public servers from the pool.ntp.org project.  
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).  
+#pool 2.centos.pool.ntp.org iburst  ★”#”でコメントアウト  
+server ＜NTPサーバ1＞ iburst  ★ 
+server ＜NTPサーバ2＞ iburst  ★ 
+   :（省略） 
+ 
+変数 説明 
+＜NTPサーバ 1＞、
+＜NTPサーバ 2＞ NTPサーバ 1および NTPサーバ 2のIPアドレス  
+ 
+2 chronydの起動と自動起動設定をします。  
+2-1 chronydを起動します。  
+＜入力フォーマット＞  
+# systemctl start chronyd  
+# systemctl status chronyd  
+エラーがなく、「 active (running) 」と表示されることを確認します。  
+● chronyd.service - NTP client/server  
+   Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; 
+vendor preset: enabled)  
+   Active: active ( running)  since Wed 2021 -05-19 11:07:33 JST; 1min 
+59s ago 
+     Docs: man:chronyd(8)  
+           man:chrony.conf(5)  
+  Process: 904 ExecStartPost=/usr/libexec/chrony -helper update -
+daemon (code=exited, status=0/SUCCESS)  
+  Process: 886 ExecStart=/usr/sbin/chrony d $OPTIONS (code=exited, 
+status=0/SUCCESS)  
+ Main PID: 899 (chronyd)  
+    Tasks: 1 (limit: 117261)  
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-22     Memory: 2.0M  
+   CGroup: /system.slice/chronyd.service  
+           mq899 /usr/sbin/chronyd  
+ 
+ 5月 19 11:07:33 haas1 systemd[1]: Starting NTP client/server...  
+ 5月 19 11:07:33 haas1 chronyd[899]: chronyd version 3.5 starting 
+(+CMDMON +NTP +REFCLOCK +RTC +PRIVDROP +SCFILTER +SIGND +ASYNCDNS 
++SECHASH +IPV6 +DEBUG)  
+ 5月 19 11:07:33 haas1 chronyd[899]: Frequency 0.000 +/ - 
+1000000.000 ppm read from /var/lib/chrony/drift  
+ 5月 19 11:07:33 haas1 chronyd[899]: Using right/UTC timezone to 
+obtain leap second data  
+ 5月 19 11:07:33 haas1 systemd[1]: Started NTP client/server.  
+ 
+2-2 chronydの自動起動設定をします。  
+＜入力フォーマット＞  
+# systemctl enable chronyd  
+# systemctl is -enabled chronyd 
+「enable d」と表示されることを確認します。  
+# systemctl is -enabled chronyd  
+enabled 
+ 
+ 
+2.6 ユーザ作成  
+次項でsshでの rootログイン禁止設定を実施するため、一般ユーザの作成を行います。  
+参考：  ユーザ作成の詳細については、 『 HaaSコントローラ操作マニュアル』の「 2.2.1.1 ユーザの管理操
+作」の「■ユーザの作成」を参照してください 。 
+ 
+ 導入マニュアル  
+ 2 PMの設定  
+ 
+© NEC Corporation 20 22 2-23  2.7 sshでの rootログイン禁止設定  
+sshでの rootログイン を禁止するための 設定手順を以下に示します。  
+ 
+STEP 操作 
+1 sshd_config ファイルを 修正します。  
+＜入力フォーマット＞  
+# cd /etc/ssh  
+# vi sshd_config  
+以下となるように 修正します（★印部分）。  
+           : （省略） 
+#PermitRootLogin yes  ★“＃”でコメントアウト  
+PermitRootLogin no  ★ 
+           : （省略） 
+ 
+2 sshdを再起動します。  
+＜入力フォーマット＞  
+# systemctl restart sshd.service  
+# systemctl status sshd.service  
+エラーがなく、「 Active: active (running) 」と表示されることを確認します。  
+# systemctl status sshd.service  
+● sshd.service - OpenSSH server daemon  
+   Loaded: loaded (/usr/lib/systemd/system/sshd.service; enabled; vendor 
+preset: enabled)  
+   Active: active (running)  since Tue 2021 -11-16 22:56:34 JST; 1min 37s 
+ago 
+     Docs: man:sshd(8)  
+           man:sshd_config(5)  
+ Main PID: 40244 (sshd)  
+    Tasks: 1 (limit: 410379)  
+   Memory: 1.2M  
+   CGroup: /system.slice/sshd.service  
+           mq40244 /usr/sbin/sshd -D -oCiphers=aes256 -
+gcm@openssh.com,chacha20 -poly1305@openssh.com,aes256 -ctr,aes256 -
+cbc,aes128 -gcm@openssh.com,aes128 -ctr> 
+: 
+ 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-1  3 HaaS VM構築 
+3.1 構築要件  
+HaaS  VMの構築要件は以下のとおりです。  
+• 2章の設定を実施した物理サーバがあること 。 
+• HaaS  VMイメージファイル とXMLファイルのチェックサム値を取得していること 。 
+• Zabbixの設定に伴い、以下アラームが発生します。  
+アラーム ID アラーム名  障害の深刻度及び障害の説明  
+D14A261  Service terminated Zabbix_API  重度障害、 ZabbixAPI のサービス断  
+初回起動時のみ発報、 2分で復旧します  
+D14B011  Service terminated AWX_API  重度障害、 AWXAPI のサービス断  
+初回起動時のみ発報、 2分で復旧します  
+D14B021  Service terminated CMDB_API  重度障害、 CMDBAPI のサービス断  
+初回起動時のみ発報、 2分で復旧します  
+D14B031  Service terminated Gitlab_API  軽度障害、 GitlabAPI のサービス断  
+初回起動時のみ発報、 2分で復旧します  
+ 
+3.2 HaaS VMイメージ配備  
+HaaS VM イメージファイル とXMLファイルの 転送と格納を実施します。  
+本手順は全ての HaaS  PM上で実施します。  
+ 
+STEP 操作 
+1 HaaS PMにログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を参照して
+ください。  
+ 
+2 HaaS VM イメージを格納するディレクトリを作成します。  
+＜入力フォーマット＞  
+# mkdir /home/images  
+ 
+3 HaaS  VMイメージファイルと XMLファイルを HaaS  PMに転送します。  
+HaaS VMイメージファイルと XMLファイルをそれぞれの格納先ディレクトリに転送します。  
+HaaS VM イメージファイル： /home/images  
+XMLファイル： /tmp 
+ 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-2  4 イメージファイルが格納されたことを確認します。  
+4-1 格納先のイメージファイルを確認します。  
+＜入力フォーマット＞  
+# cd /home/images  
+# ls ＜イメージファイル名＞  
+ 
+変数 説明 
+＜イメージファイル名＞  格納先のイメージファイル名  
+例：haasctl_x xxx_comp .qcow2  
+ 
+格納先にイメージファイルが格納されていることを確認します 。 
+# ls haasctl_ xxxx_comp .qcow2 
+haasctl_ xxxx_comp .qcow2 
+ 
+4-2 格納先 XMLファイルを確認します。  
+＜入力フォーマット＞  
+# cd /tmp 
+# ls ＜XMLファイル 名＞ 
+ 
+変数 説明 
+＜XMLファイル 名＞ Haas VMのXMLファイル名  
+例：haasctl_ xxxx.xml 
+格納先に XMLファイルが格納されていることを確認します 。 
+# ls haasctl_ xxxx.xml 
+haasctl_ xxxx.xml 
+ 
+4-3 チェックサム値 を確認します。  
+＜入力フォーマット＞  
+# cd /home/im ages 
+# md5sum ＜イメージファイル名＞  
+# cd /tmp 
+# md5sum ＜XMLファイル 名＞ 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-3  変数 説明 
+＜イメージファイル名＞  イメージファイル名  
+例：haasctl_ xxxx_comp .qcow2  
+＜XMLファイル 名＞ Haas VMのXMLファイル名  
+例：haasctl_ xxxx.xml 
+ 
+イメージファイルおよび XMLファイルの チェックサム値 が、転送前の 各ファイルのチェッ
+クサム値 と同じであることを確認します 。 
+# md5sum haasctl_ xxxx_comp.qcow2 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxx haasctl_ xxxx_comp.qcow2 
+ 
+# md5sum haasctl_ xxxx.xml 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxx haasctl_ xxxx.xml 
+ 
+変数 説明 
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  指定されたファイルのチェックサム値（ 16進数
+表記、 32桁）を表示します。  
+ 
+5 VMイメージファイル を非圧縮状態に戻 します。  
+＜入力フォーマット＞  
+# cd /home/images  
+# qemu-img convert -f qcow2 -O qcow2 ＜圧縮ファイル名 ＞ ＜非圧縮ファイル名 ＞ 
+ 
+変数 説明 
+＜圧縮ファイル名＞  圧縮状態のイメージファイル名  
+例：haasctl_ xxxx_comp.qcow2  
+＜非圧縮ファイル 名＞ 圧縮解除後のイメージファイル名  
+例：0系の場合   haasctl00_ xxxx.qcow2  
+    1系の場合   haasctl01_ xxxx.qcow2  
+    2系の場合   haasctl02_ xxxx.qcow2  
+注： イメージファイルは共通のため、圧縮解除後のイメージファイル名は、 0系、1系、2系が
+分かるようにしてください。  
+ 
+6 XMLファイル名を変更します。  
+XMLファイルは共通のため、 0系、 1系、 2系が分かるように XMLファイル名を変更します。  
+＜入力フォーマット＞  
+# cd /tmp 
+# mv ＜変更前の XMLファイル名＞  ＜変更後の XMLファイル名＞  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-4   
+変数 説明 
+＜変更前の XMLファイル名＞  変更前の XMLファイル名  
+例：haasctl_ xxxx.xml 
+＜変更後の XMLファイル名 ＞ 変更後の XMLファイル名  
+例：0系の場合   haasctl00_ xxxx.xml 
+    1系の場合   haasctl01_ xxxx.xml 
+    2系の場合   haasctl02_ xxxx.xml 
+ 
+7 XMLファイルを修正します。  
+＜入力フォーマット＞  
+# vi / tmp/＜XMLファイル 名＞ 
+ 
+変数 説明 
+＜XMLファイル 名＞ Haas VMのXMLファイル名  
+例：haasctl00_ xxxx.xml 
+ 
+以下の★印部分の VM名を修正します。  
+<domain type='kvm'>  
+  <name>＜VM名＞</name>  ★ 
+  <memory unit='KiB'> 67108864 </memory>  
+  <currentMemory unit='KiB'> 67108864 </currentMemory>  
+  <vcpu placement='static'>4 4</vcpu> 
+ 
+変数 説明 
+＜VM名＞ Haas VMのホスト名  
+『BoxUP環境定義書 _ホスト名 』の HaaS VM のHostname を
+参照してください。  
+ 
+以下の★印部分 のVMイメージの ファイルパスを修正します。  
+  <devices>  
+    <emulator>/usr/libexec/qemu -kvm</emulator>  
+    <disk type='file' device='disk'>  
+      <driver name='qemu' type='qcow2'/>  
+      <source file=' /home/images/ ＜非圧縮ファイル名＞ '/> ★ 
+      <target dev='vda' bus='virtio'/>  
+      <address type='pci' domain='0x0000' b us='0x00' slot='0x05' function='0x0'/>  
+    </disk> 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-5  変数 説明 
+＜非圧縮ファイル名＞  STEP  5の圧縮解除後のイメージファイル 名 
+例：0系の場合   haasctl00_ xxxx.qcow2  
+    1系の場合   haasctl01_ xxxx.qcow2  
+    2系の場合   haasctl02_ xxxx.qcow2  
+ 
+ 
+以下の★印部分 のMACアドレスを修正します。  
+注： 各HaaS -VMでMACアドレスが重複しないように設定します。  
+MACアドレスが重複すると HaaS VM 間や対向ノードと通信が出来なくなる可能性があり
+ます。  
+    <interface type='bridge'>  
+      <mac address=' ＜MACアドレス＞ '/> ★ 
+      <source bridge='br -haas-mng'/> 
+      <model type='e1000'/>  
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>  
+    </interface>  
+    <interface type='bridge'>  
+      <mac address=' ＜MACアドレス＞ '/> ★ 
+      <source bridge='br -haas-op'/> 
+      <model type='e1000'/>  
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>  
+    </interface>  
+ 
+MACアドレスの修 正は以下の例を参考にしてください。  
+例） リリース時の XMLで以下のように記載されている場合  
+<mac address='52:54:00:51:00:02'/>  
+ 
+0系の場合： <mac address='52:54:00:51: 00:02'/> 
+1系の場合： <mac address='52:54:00:51: 01:02'/> 
+2系の場合： <mac address='52:54:00:51: 02:02'/> 
+ 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-6  3.3 HaaS VM の起動  
+「3.2 HaaS VMイメージ配備 」に続いて、 HaaS VM の登録・起動 を行います。  
+ 
+STEP 操作 
+1 HaaS PMにログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を参照して
+ください。  
+ 
+2 VMを登録します。  
+＜入力フォーマット＞  
+# virsh define /tmp/＜XMLファイル 名＞ 
+ 
+変数 説明 
+＜XMLファイル 名＞ Haas VMのXMLファイル 名 
+例： haasctl00_ xxxx.xml 
+ 
+# virsh define / tmp/haasctl00_ xxxx.xml 
+ 
+ドメイン ccc...c が /tmp/haasctl00_ xxxx.xml から定義されました  
+ 
+変数 説明 
+ccc...c 指定した XMLファイルで定義され たVM名 
+ 
+3 VMを起動します。  
+＜入力フォーマット＞  
+# virsh start ＜VM名＞ 
+ 
+変数 説明 
+＜VM名＞ STEP 2で登録した Haas VMのVM名 
+ 
+# virsh start ccc...c 
+ 
+ドメイン ccc...c が起動されました  
+ 
+変数 説明 
+ccc...c  Haas VMのVM名 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-7  3.4 After config 機能 
+「3.3 HaaS VM の起動」に続いて、 HaaS VM のIPアドレス設定を行います。  
+After config機能により HaaS VM の起動後に、環境に合わせた IPアドレスを設定することができます。  
+ 
+STEP 操作 
+1 インタフェースの自動起動を ONにします。  
+以下の手順（ 1-1～1-3）を haas0～haas2に対して実施します。  
+1-1 HaaS  PMから HaaS  VMにコンソールログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を
+参照してください。  
+＜入力フォーマット＞  
+# virsh console <VM名> 
+注： After config実施前はどの VMにログインしても コンソール上は 「haas0」と表示さ
+れます。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+注： “Connected to domain ＜VM名＞  Escape character is ^] ”が表示されたまま 画
+面が遷移しない場合、 ”Enter”キーを押下し、ログイン してください。  
+ 
+1-2 インタフェースの自動起動を ONにします。  
+＜入力フォーマット＞  
+# nmcli c mod ens2 autoconnect yes  
+# nmcli c mod ens3 autoconnect yes  
+ 
+1-3 コンソー ルからログアウトします。  
+「Ctrl」キーと「 ]」キーを同時 に押します。  
+  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-8  2 After config （nmcli_change ）を実行します。  
+以下の手順（2-1～2-8）を haas0～haas2に対して実施します。  
+2-1 HaaS  PMから HaaS  VMにコンソールログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を
+参照してください。  
+＜入力フォーマット＞  
+# virsh console <VM名> 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+注： “Connected to domain ＜VM名＞  Escape character is ^] ”が表示されたまま 画
+面が遷移しない場合、 ”Enter”キーを押下し、ログイン してください。  
+ 
+2-2 インベントリファイルを修正します。  
+＜入力フォーマット＞  
+# cd /root/after_config/inventories/  
+# vi 01_interface_ip_address_change_invent ory.yml 
+ 
+  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-9  以下を参考に修正します。  
+# vi 01_interface_ip_address_change_inventory.yml  
+all:  
+  vars:  
+    hostname: ＜ホスト名＞   
+ 
+    ha_eth_count: ＜IF数＞  
+ 
+    network:  
+    - # management_nw:  
+      conn_name: ens2 ★設定変更不要   
+      ip_address: ＜内部NWのIP＞  
+      prefix: ＜内部NWのprefix＞  
+      dns: ＜DNSサーバのIP＞  
+    - # operation_nw:  
+      conn_name: ens3 ★設定変更不要   
+      ip_address: ＜外部NWのIP＞  
+      prefix: ＜外部NWのprefix＞  
+      dns: ＜DNSサーバのIP＞  
+#    - # extoperation_nw:  
+#      conn_name:        ens7                # Conditional  
+#      ip_address:       192.168.60.16     # Conditional  
+#      prefix:           24                   # Conditional  
+#      dns:              8.8.8.8              # Optional  
+ 
+    default_gateway:  
+      conn_name: ens3 ★設定変更不要   
+      gateway: ＜外部NWのgateway ＞  
+ 
+    static_route:  
+      conn_name:        ens7                # Optional  
+      network_address:  192.168.60.0     # Optional  
+      prefix:           24                   # Optional  
+      nexthop:          192.168.60.1       # Optional  
+    
+    initialize_network:  
+    - conn_name: ens2  ★設定変更不要  
+    - conn_name: ens3  ★設定変更不要  
+ 
+変数 説明 
+＜ホスト名＞  対象のホスト名（設定必須）  
+＜IF数＞ 「2」を指定（ネットワーク数）  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-10  変数 説明 
+＜内部 NWのIP＞ 内部通信用 NWのIPアドレス  
+＜内部 NWのprefix＞ 内部通信用 NWのprefix 
+＜DNSサーバの IP＞ DNSサーバの IPアドレス  
+複数ある場合は、カンマ （,）区切りで設定 できます。  
+＜外部 NWのIP＞ 外部通信用 NWのIPアドレス  
+＜外部NWのprefix＞ 外部通信用 NWのprefix 
+＜外部 NWのgateway＞ 外部通信用 NWのgateway IPアドレス  
+注： ホスト名や IPアドレスなどの値の詳細については、 『 BoxUP環境定義書 _ホスト
+名』および『 BoxUP環境定義書 _IPアドレス』を参照してください。  
+ 
+2-3 IPアドレス書き換え前の確認を行います。  
+＜入力フォーマット＞  
+# ip a 
+ 
+2-4 After config を実行します。  
+＜入力フォーマット＞  
+# cd /root/after_config  
+# ./01_interface_ip_address_change.sh  
+01_interface_ip_address_change.sh は再起動処理が含まれており ます。再起動完了後に 
+「login」と表示される 事を確認します。 以下は表示例です。  
+# ./01_interface_ip_address_change.sh  
+    : （省略） 
+haasctl00 login: 
+注： 「To Abort waiting enter ‘Yes’」と表示された場合は、 「 Yes」を入力し、Enterを押
+下してください。  
+ 
+login表示確認後、そのままログインして下さい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+ 
+ 
+2-5 IPアドレスが変更されていることを確認します。  
+＜入力フォーマット＞  
+# ip a 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-11  2-6 コンソールからログアウトします。  
+「Ctrl」キーと「 ]」キーを同時 に押します。  
+ 
+2-7 HaaS VMにログインします。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 IPアド
+レス＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してく
+ださい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+ログインできることを確認します。  
+ 
+2-8 ログアウトします。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施す
+る必要があります。ログイン中の PM、VMから抜けるまで繰り返し実施してくだ
+さい。  
+ 
+3 After config （package_change ）を実行します。  
+以下の手順（ 3-1～3-6）は haas0に対してのみ 実施します。  
+3-1 HaaS VMにログインします。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 IPアド
+レス＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してく
+ださい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。   
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-12  3-2 インベントリファイルを修正します。  
+＜入力フォーマット＞  
+# cd /root/after_config/inventories/  
+# vi 02_construction_change_inventory.yml  
+ 
+以下のように修正します。  
+# vi 02_construction_change_inventory.yml  
+all: 
+  hosts: 
+    haas.0:  ★設定変更不要  
+    haas.1:  ★設定変更不要  
+    haas.2:  ★設定変更不要  
+ 
+  vars: 
+ 
+    ha_node_count:        ＜HaaS VM 数＞ 
+ 
+    ha_eth_count:         ＜IF数＞ 
+ 
+    drbd_var:  
+      drbd_disk:          /dev/vda2  ★Default 値のままで設定不要  
+ 
+    hostname:  
+      node0:              ＜haas0系のホスト名＞  
+      node1:              ＜haas1系のホスト名＞  
+      node2:              ＜haas2系のホスト名＞  
+ 
+    domain_ip_relations:  
+      mng_vip:            ＜内部NWのVIP＞ 
+      haas0:              ＜haas0系の内部NWのIP＞ 
+      haas1:              ＜haas1系の内部NWのIP＞ 
+      haas2:              ＜haas2系の内部NWのIP＞ 
+      op_vip:             ＜外部NWのVIP＞ 
+      haas0_op:           ＜haas0系の外部NWのIP＞ 
+      haas1_op:           ＜haas1系の外部NWのIP＞ 
+      haas2_op:           ＜haas2系の外部NWのIP＞ 
+      ext_vip:             192.168.60.15         # Conditional  
+ 
+    network_info:  
+      mng_subnet:         ＜内部NWのsubnet＞ 
+      mng_netmask:        ＜内部NWのnetmask ＞ 
+      ntp_server1:        ＜外部NTPサーバ1のIP＞ 
+      ntp_server2:        ＜外部NTPサーバ2のIP＞ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-13   
+ 
+注1： 上記の変数すべてを設定する必要があります。  
+注2： ホスト名や IPアドレスなどの値の詳細については、『 BoxUP環境定義書 _ホスト
+名』および『 BoxUP環境定義書 _IPアドレス』を参照してください。  
+   
+    vip_resource_info:  
+      mng_vip:  
+        connection_name:  ens2  ★設定変更不要  
+        cidr_netmask:     ＜内部NWのprefix＞ 
+      op_vip: 
+        connection_name:  ens3  ★設定変更不要  
+        cidr_netmask:     ＜外部NWのprefix＞ 
+      ext_vip:  
+        connection_name:  ens7                  # Conditional  
+        cidr_netmask:      24                     # Conditional  
+                :                :  ★これ以降は固定値のため変更禁止  
+変数 説明 
+＜HaaS VM 数＞ HaaS VM の数 
+「3」を設定  
+＜IF数＞ 「2」を指定（ネットワーク数）  
+＜haas0系のホスト名＞  haas0系のホスト名  
+＜haas1系のホスト名＞  haas1系のホスト名  
+＜haas2系のホスト名＞  haas2系のホスト名  
+＜内部 NWのVIP＞ 内部通信用 NWのVIPアドレス  
+＜haas0系の内部 NWのIP＞ haas 0系の内部通信用 NWのIPアドレス  
+＜haas1系の内部 NWのIP＞ haas 1系の内部通信用 NWのIPアドレス  
+＜haas2系の内部 NWのIP＞ haas 2系の内部通信用 NWのIPアドレス  
+＜外部 NWのVIP＞ 外部通信用 NWのVIPアドレス  
+＜haas0系の外部 NWのIP＞ haas 0系の外部通信用 NWのIPアドレス  
+＜haas1系の外部 NWのIP＞ haas 1系の外部通信用 NWのIPアドレス  
+＜haas2系の外部 NWのIP＞ haas 2系の外部通信用 NWのIPアドレス  
+＜内部 NWのsubnet＞ 内部通信用 NWのsubne t 
+＜内部 NWのnetmask＞ 内部通信用 NWのnetmask  
+＜外部 NTPサーバ 1のIP＞ 外部 NTPサーバ 1のIPアドレス  
+＜外部 NTPサーバ 2のIP＞ 外部 NTPサーバ 2のIPアドレス  
+＜内部 NWのprefix＞ 内部通信用 NWのprefix 
+＜外部 NWのprefix＞ 外部通信用 NWのprefix 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-14  3-3 IPアドレス書き換え前の確認を行います。  
+＜入力フォーマット＞  
+# ip a 
+ 
+3-4 After config を実行します。  
+＜入力フォーマット＞  
+# cd /root/after_config  
+# ./02_construction_change.sh  
+02_construction_change.sh は再起動処理が含まれており、再起動時に自動終了します。  
+以下は表示例です。  
+# ./02_construction_change.sh  
+    : （省略） 
+TASK [reboot all VMs] 
+*******************************************************************
+********************  
+Connection to ＜HaaS VM の外部IPアドレス＞  closed by remote host.  
+Connection to ＜HaaS VM の外部IPアドレス＞  closed. 
+ 
+注1： TASK [replace /etc/hosts] で止まった場合は 「Yes」を入力し続けます。  
+注2： TASK [Wait for cluster sync (3 node redundancy)] は時間がかか るため、完了するま
+でしばらく待ちます。  
+注3： スクリプトを実行すると、 「 FAILED - RETRYING: ～～(100000 retries left). 」といっ
+た出力が続きますが、エラーではないため問題ありません。そのままお待ちくださ
+い。 
+ 
+                 
+変数 説明 
+＜HaaS VM の外部 IPアド
+レス＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してく
+ださい。  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-15  3-5 HaaS VM （ACT）にログインします。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してく
+ださい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+ 
+3-6 VIP（冗長 IPアドレス） が変更されていることを確認します。  
+＜入力フォーマット＞  
+# ip a 
+ 
+4 After config 後の正常性確認を実施します。  
+4-1 正常性確認を行います。  
+＜入力フォーマット＞  
+# pcs status  
+確認観点は「 6.1 クラスタ動作確認 」を参照してください。  
+ 
+4-2 ログアウトします 。 
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施す
+る必要があります。ログイン中の PM、VMから抜けるまで繰り返し実施してくだ
+さい。  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-16  5 Zabbixの設定を行います。  
+5-1 HaaS VM （ACT）にログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してく
+ださい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+ 
+5-2 ファイルを修正します。  
+＜入力フォーマット＞  
+# cd zabbix/  
+# vi zbx_inventory.ini  
+以下を参考に修正します。  
+[all:vars]  
+ansible_directory=/srv/zabbix  
+import_directory=/home/maintenance_tools/zabbix/zabbix_setting/role
+s/common_import_items/files  
+site_region=Unit01 -1 
+ 
+default_gateway_ip=" ＜外部通信用 NWのgateway＞" 
+haas_vip="haas.vip.mng"  
+snmp_community="haas_snmp"  
+             : 
+             : 
+ 
+変数 説明 
+＜外部通信用 NWの
+gateway＞ 外部通信用 NWのgateway  IPアドレス  
+『BoxUP環境定義書 _IPアドレス』を参照してください。  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-17  5-3 Zabbix設定を実行し、エラーがないことを確認します。  
+＜入力フォーマット＞  
+# cd /root/zabbix/  
+# ./setup_zabbix.sh  
+5-4 ホストを確認します。  
+HaaS PM への SNMP Trap を受信するために、 HaaS VM （ACT）で Zabbixのインタフェース
+設定を修正 する手順（ STEP  5-4（本手順）～ STEP  5-7）を実施します。  
+＜入力フォーマット＞  
+# ./host_show.sh  
+HaaS PM のホスト名を確認します。  
+[HOST NAME ]欄に表示されるホスト名 のうち、 HaaS PM のホスト名 をSTEP  5-5のコマンド
+入力時に使用します。  
+参考：  「2.1 HaaSホストの環境構築」で設定したホスト名が HaaS PM のホスト名で
+す。以下は表示例です。  
+  [HOSTNAME]                    [STATUS] [ZBX]   [SNMP]  
+  HaaSCtlACT                     Enable   Enable  Unknown  
+  haas0                           Enable   Enable  Enable  
+  haas1                           Enable   Enable  Enable  
+  haas2                           Enable   Enable  Enable  
+  haas-host-server-1st         Enable   Enable  Enable  
+  haas-host-server-2nd         Enable   Enable  Enable  
+  haas-host-server-3rd         Enable   Enable  Enable  
+ 
+5-5 HaaS PM の設定を確認します。  
+STEP  5-5~STEP  5-9は全ての HaaS  PMについて繰り返し実施してください。  
+＜入力フォーマット＞  
+# ./host_interface.sh ＜HaaS PM のホスト名＞  
+ 
+変数 説明 
+＜HaaS PM のホスト名＞  STEP  5-4で表示した HaaS PM のホスト名  
+ 
+リプライの表示例を 以下に示します。  
+  HOSTNAME : haas -host-server-1st 
+  192.168.80.101  :10050 ZBX  Main  
+  192.168.80.101  :161   SNMP Main  
+「SNMP」の行に表示される IPアドレス によってこの後の手順が異なります。  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-18  • 「SNMP」の行に表示される IPアドレスが BMCのIPアドレスでない場合、 STEP  
+5-6および STEP  5-7を実施します。  
+• 「SNMP」の行に表示される IPアドレスが BMCのIPアドレスの場合、 STEP  5-8
+に進みます。  
+ 
+参考：  BMCのIPアドレスを確認するには、該当サーバへログインし以下のコマンドを実
+施します。  
+# ipmitool lan print | grep "IP Address  "  
+リプライの表示例を 以下に示します。  
+# ipmitool lan print | grep "IP Address  "  
+IP Address              : 192.168.80 .246  
+ 
+5-6 ホストインタフェースの設定を変更します。  
+＜入力フォーマット＞  
+# ./hostinterface_update.sh ＜HaaS PM のホスト名＞  ＜BMCのIPアドレス ＞ 
+ 
+変数 説明 
+＜HaaS PM のホスト名＞  STEP  5-4で表示した HaaS PM のホスト名  
+＜BMCのIPアドレス＞  STEP  5-5の「参考：」で確認した BMCのIPアドレス  
+コマンドが正常に実行され、「 ./hostinterface_update.sh end 」と表示されることを確認しま
+す。  
+ 
+5-7 HaaS PM の設定を確認します。  
+＜入力フォーマット＞  
+# ./host_interface.sh ＜HaaS PM のホスト名＞  
+ 
+変数 説明 
+＜HaaS PMのホスト名＞  STEP  5-6で入力したホスト名  
+リプライの表示例を 以下に示します。  
+  HOSTNAME : haas -host-server-1st 
+  192.168.80.101  :10050 ZBX  Main  
+  ＜BMCのIPアドレス＞   :161   SNMP Main  
+「SNMP」の行に STEP  5-6で設定した BMCのIPアドレス が表示されることを確認しま
+す。  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-19  5-8 正常性を確認します。  
+＜入力フォーマット＞  
+# ./host_show.sh  
+HaaSCtlACT 以外のホスト名すべての [ZBX]および [SNMP]がEnableであることを確認しま
+す。 SNMPのステータスが Enableにならない場合は STEP  5-9を実施します。  
+[HOSTNAME]             [STATUS] [ZBX] [SNMP]  
+HaaSCtlACT             Enable Enable Unknown  
+haas0                   Enable Enable Enable  
+haas1                   Enable Enable Enable  
+haas2                   Enable Enable Enable  
+haas-host-server-1st  Enable Enable Enable  
+haas-host-server-2nd Enable Enable Enable  
+haas-host-server-3rd Enable Enable Enable  
+ 
+5-9 SNMPの監視ステータスを更新します。  
+本手順は 5-8でSNMPのステータスが Enableとならない場合に実施します。  
+＜入力フォーマット＞  
+# cd /home/maintenance_tools /zabbix 
+# ./host_taskcreate.sh  ＜ホスト名＞  
+ 
+変数 説明 
+＜ホスト名＞  STEP  5-8でSNMPがDisableもしくは Unknown となって
+いるホスト名  
+エラーなく終了することを確認します。また、再度 STEP 5-8を実施し監視ステータスを確
+認します。  
+ 
+6 ホスト情報を設定します。  
+6-1 ホスト情報ファイルを修正します。  
+＜入力フォーマット＞  
+# vi /srv/common/host_information.yml  
+以下の★印部分を修正します。  
+# vi /srv/common/host_information.yml  
+senderId : ＜FQDN＞ ★ 
+objectInstance:  ＜NFインスタンス名＞  ★ 
+objectClass: HaaS  
+haas_vip_fqdn: ＜FQDN＞ ★ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-20   
+変数 説明 
+＜FQDN＞ HaaSの外部向け FQDNを設定  
+＜NFインスタンス名＞  NFインスタンス名を設定  
+6-2 ログアウトし ます。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施す
+る必要があります。ログイン中の PM、VMから抜けるまで繰り返し実施してくだ
+さい。  
+ 
+7 CMDBのHaaSコントローラ情報を登録します。  
+7-1 HaaS VM （ACT）にログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してく
+ださい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+ 
+7-2 CMDBのHaaSコントローラ 情報を取得 します。  
+＜入力フォーマット＞  
+# cd /root/config_update_scrip ts 
+# ./_haas_ctl_info.sh -mode get  
+現在の HaaSコントローラ情報が表示されます。 以下は表示例です。「 version」は使用して
+いる HaaSコントローラの版数によって変わります。  
+{'vm_name': 'haas0', 'location': '00 -01', 'version': '1.5.0'}  
+{'vm_name': 'haas1', 'location': '00 -01', 'version': '1.5.0'}  
+{'vm_name': 'haas2', 'location': '00 -01', 'version': '1.5.0'}  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-21  7-3 既存の VM名を指定して、 vm_name とlocationを変更します。  
+＜入力フォーマット＞  
+# ./_haas_ctl_info.sh -mode set -target ＜変更前の VM名＞ -vm_name ＜変
+更後のVM名＞ -location ＜ラック番号＞  
+ 
+変数 説明 
+＜変更前の VM名＞ STEP 7-2で、’vm_name’ に表示されたデフォルト のVM名 
+＜変更後の VM名＞ 新VM名（HaaS  VMのホスト名）  
+『BoxUP環境定義書 _ホスト名 』を参照してください。  
+＜ラック番号＞  ラック番号がデフォルト 値となっているため、それぞれの
+HaaSが搭載されている正しいラック番号を設定します。  
+ 
+7-4 設定が変更されていることを確認します。  
+以下のコマンドを入力し、 STEP 7-3で設定したとおりに HaaSコントローラの情報が変更さ
+れていることを確認します。  
+＜入力フォーマット＞  
+# ./_haas_ctl_info.sh -mode get  
+ 
+8 OAuth2認証情報を登録します。  
+8-1 HaaS VM （ACT）にログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してく
+ださい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-22  8-2 NE-OPS、NW-OPSのOAuth2認証情報を登録します。  
+＜入力フォーマット＞  
+# cd /root/config_update_scripts  
+# ./_generate_oauth2_client.sh ＜Client Name ＞ 
+ 
+変数 説明 
+＜Client Name ＞ NE-OPSもしくは NW-OPSのクライアント名  
+リプライの表示例を 以下に示します。  
+# ./_generate_oauth2_client.sh ne -ops 
++ ./scripts/gen_oauth2_client.py --name ne-ops 
+=== Generate Info ===  
+Client Name   : ne -ops 
+Client ID     : 3fca880b -e90a-4373-ae09-cad20ecb19c3  
+Client Secret : 
+GYH22ExxoQp3DFH14S0oJ_RJqpOj1qnbrr2v4M0F5dO_idksDKAvCuCr8sq 7bZ1S
+HyX8cKkZGn6amHY6O3UB8s  
+「Client Name 」、「 Client ID」、「 Client Secret 」が出力されることを確認します。  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-23  3.5 cron設定 
+HaaS VM を構築後、 HaaS PM 上で cron設定を実施します。 本手順は全ての HaaS PM に対し実施します。  
+ 
+STEP 操作 
+1 cron設定資材のファイルを HaaS PM に転送します。  
+cron設定資材ファイルを HaaS PM の「 /root」に手動で配置 します。  
+ 
+2 HaaS PMにログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を参照して
+ください。  
+ 
+3 cron設定を行います 。 
+3-1 資材ファイルを解凍します。  
+＜入力フォーマット＞  
+# cd /root  
+# tar -xvf if_mon_cronset.tar  
+# rm -f if_mon_cronset.tar  
+ 
+3-2 HaaS PM 上の HaaS VM 名を確認します。  
+＜入力フォーマット＞  
+# virsh list  --all 
+HaaSコントローラの VM名を確認します。  
+# virsh list  --all 
+Id    名前            状態 
+-------------------------------   
+ 254   ＜HaaS VM 名＞         実行中 
+ 
+変数 説明 
+＜HaaS VM 名＞ HaaSコントローラの VM名（virsh domain 名） 
+ 
+3-3 資材ファイル内の、サーバに応じて変更が必要な箇所を変更します。  
+＜入力フォーマット＞  
+# cd /root 
+# vi cronSetting.cfg  
+以下を参考に変更します。  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-24  PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin  
+ 
+*/1 * * * * ＜配置ディレクトリ＞ /if_mon.sh ＜HaaS VM 名＞ 
+ 
+変数 説明 
+＜配置ディレクトリ＞  If_mon.shを配置したディレクトリ  
+「/root」に修正してください。  
+＜HaaS VM 名＞ STEP 3-2で確認した HaaSコントローラの VM名 
+ 
+3-4 cron設定を反映させます。  
+＜入力フォーマット＞  
+# cd /root 
+# crontab cronSetting.cfg  
+ 
+3-5 cron設定が反映されていることを確認します。  
+＜入力フォーマット＞  
+# crontab -l 
+cronSetting.cfg の中身と同じ内容が表示 されることを確認します。  
+ 
+3.6 ユーザ作成  
+一般ユーザの作成を行います。  
+参考：  ユーザ作成の詳細については、 『 HaaSコントローラ操作マニュアル』の「 2.2.1.1 ユーザの管理操
+作」の「■ユーザの作成」を参照してください。  
+ 
+また、次 項にて必要となる ne-opsユーザの作成を 実施します。  
+以下の手順（ STEP  1～STEP  2）は haas0～haas2に対して実施します。  
+ 
+STEP 操作 
+1 HaaS VM にログインしま す。 
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-25  変数 説明 
+＜HaaS VM の外部 IPアドレス
+＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してくださ
+い。 
+root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替えてくださ
+い。  
+ 
+2 ne-opsユーザを作成します。  
+＜入力フォーマット＞  
+# useradd ne -ops 
+# passwd ne -ops 
+password ：neops123  
+パスワードは 2回入力します。  
+1回目は、 BAD PASSWORD となり、再入力すると以下のように表示されて完了します。  
+           : （省略） 
+# passwd: すべての認証トークンが正しく更新できました。  
+ 
+3 HaaS VM （ACT）にログインします。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してくださ
+い。 
+root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替えてくださ
+い。  
+ 
+4 /srv/files 配下の所有権を ne-opsユーザに変更します。  
+＜入力フォーマット＞  
+# chown -R ne-ops:ne-ops /srv/files  
+ 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-26  3.7 証明書関連設定  
+証明書に関する設定を行います。  
+ 
+■CA証明書の設定手順  
+STEP 操作 
+1 HaaS VM （ACT）にログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+2 証明書作成用のディレクトリを作成 します。  
+＜入力フォーマット＞  
+# cd /srv/nginx  
+# mkdir haas  
+# cd haas  
+ 
+3 秘密鍵を 作成します。  
+以下のコマンドを実行し、任意のパスワードを設定します。  
+＜入力フォーマット＞  
+# openssl genrsa -aes256 -out ./haas. key 2048 
+以下の表示例 を参考に設定します。  
+[root@haasctl00 haas]# openssl genrsa -aes256 -out ./haas.key 2048  
+Generating RSA private key, 2048 bit long modulus (2 primes)  
+........................................................+++++  
+.......................+++++  
+e is 65537 (0x010001)  
+Enter pass phrase for ./haas.key:  ★任意のパスワード入力  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-27  Verifying - Enter pa ss phrase for ./haas.key:  ★パスワード を再入力 
+ 
+4 CSRファイル を作成します。  
+＜入力フォーマット＞  
+# openssl req -new -key ./haas. key -out haas.csr  
+以下を参考に設定します。  
+[root@haas0 haas]# openssl req -new -key ./haas. key -out haas.csr  
+Enter pass phrase for ./haas. key: ★ STEP 3の「秘密鍵の作成 」で入力したパスワードを設定  
+You are about to be asked to enter information that will be incorporated  
+into your certificate request.  
+What you are about to enter is what is called a Distinguished Name or a DN.  
+There are quite a few fields but you can leave some blank  
+For some fields there will be a default value,  
+If you enter '.', the field will be left blank.  
+----- 
+Country Name (2 letter code) [XX]:JP  ★「JP」を設定（※以下、CAサーバ環境に合わせて設定 ） 
+State or Province Name (full name) []:aaa  ★ ※CAサーバ環境に合わせて設定  
+Locality Name (eg, city) [Default City]:bbb  ★ ※CAサーバ環境に合わせて設定  
+Organization Name (eg, company) [Default Company Ltd]:ccc  ★ ※CAサーバ環境に合わせ
+て設定 
+Organizational Unit Name (eg, section) []:dd d ★ ※CAサーバ環境に合わせて設定  
+Common Name (eg, your name or your server's hostname) []:haas  ★ ※HaaS側のFQDNを
+設定 
+Email Address []:  ★未入力で ［ENTER］押下 
+ 
+Please enter the following 'extra' attributes  
+to be sent with your certificate request  
+A challenge password []:  ★未入力で ［ENTER］押下 
+An optional company name []:  ★未入力で ［ENTER］押下 
+ 
+5 STEP  4で作成した CSRファイルを CAサーバへ転送し、 CAサーバ上で CA証明書を発行します。
+＜入力フォーマット＞  
+# openssl ca -in <CSRファイル格納ディレクトリ >/haas.csr -out <証明書発行ディレクトリ >/haas.crt 
+-days ＜証明書の有効期限＞  
+ 
+変数 説明 
+＜CSRファイル格納ディレク
+トリ＞  CSRファイルを格納したディレクトリ  
+＜証明書発行ディレクトリ ＞ 発行した証明書を格納するディレクトリ  
+＜証明書の有効期限＞  証明書有効期限の日数  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-28   
+コマンドを実行すると入力が必要となるため、 以下の表示例 を参考に実施します。  
+Enter pass phrase for /home/admin/ca/private/cakey.pem:  ★CAサーバ側のパスワード を入
+力しEnter押下 
+ 
+# Sign the certificate? [y/n]:  ★「y」を入力し、 Enter押下 
+ 
+1 out of 1 c ertificate requests certified, commit? [y/n]  ★「y」を入力し、 Enter押下 
+ 
+注： CA証明書の 発行で以下のエラーが出た場合、 同じ DNの証明書が存在するのが原因です。
+CAサーバを立てた側において、対象証明書を取り消す必要があります。取り消した証明書
+は使用不可となるため、 対象に注意してください。  
+failed to update database  
+TXT_DB error number 2  
+ 
+6 CAサーバから、以下に示す 証明書をHaaS  VMの/tmp配下に転送します。  
+ファイル  説明 転送先の HaaS VM  
+HaaSサーバ証明書 (haas.crt ) STEP  5で作成した haas.crt  HaaS VM （ACT）のみ  
+ルート証明書 (NW-OPS)  NW-OPSのルート証明書  HaaS VM （ACT）のみ  
+ルート証明書 (NE-OPS)  NE-OPSのルート証明書  HaaS VM （ACT）のみ  
+5GC CA 公開鍵  5GC CA の公開鍵  haas.0～haas.2全て 
+注： 転送前に CAサーバ上で md5sum コマンドによりチェックサムを取得してください。  
+ 
+7 STEP 6で転送したファイルを それぞれ指定のディレクトリ にコピー します。  
+7-1 haas.crtを/srv/nginx/ 配下にコピーします。  
+＜入力フォーマット＞  
+# cd /srv/nginx  
+# rm haas.key haas.crt  
+# cd /tmp 
+# cp haas.crt /srv/nginx/  
+ 
+7-2 NW-OPSにて使用している CAサーバ上より転送されたルート証明書を /srv/common/ 配下
+にコピーします。  
+＜入力フォーマット＞  
+# cp ＜ルート証明書 (NW-OPS)＞ /srv/common/root_cert_nw -ops.pem 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-29  変数 説明 
+＜ルート証明書 (NW-OPS)＞ NW-OPSにて使用している CAサーバ上より転送された
+ルート証明書  
+ 
+7-3 NE-OPSにて使用している CAサーバ上より転送されたルート証明書を /srv/common/ 配下に
+コピーします。  
+＜入力フォーマット＞  
+# cp ＜ルート証明書 (NE-OPS)＞ /srv/common/root_cert_ne -ops.pem 
+ 
+変数 説明 
+＜ルート証明書 (NE-OPS)＞ NE-OPSにて使用している CAサーバ上より転送されたル
+ート証明書  
+ 
+7-4 5GCのCA公開鍵を/etc/ssh/配下にコピーします。  
+＜入力フォーマット＞  
+# cp ＜5GCのCA公開鍵＞ /etc/ssh/ 
+ 
+変数 説明 
+＜5GCのCA公開鍵＞ 5GCのCA公開鍵   
+ 
+7-5 5GCのCA公開鍵のユーザ所有権を rootに変更します。  
+＜入力フォーマット＞  
+# chown root:root /etc/ssh/ ＜5GCのCA公開鍵＞ 
+ 
+変数 説明 
+＜5GCのCA公開鍵＞ 5GCのCA公開鍵   
+ 
+8 チェックサム値を確認します。  
+＜入力フォーマット＞  
+# cd /srv/ nginx 
+# md5sum haas.crt  
+# cd /srv/common  
+# md5sum root_cert_nw -ops.pem 
+# md5sum root_cert_ne -ops.pem 
+# cd /etc/ssh  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-30  # md5sum ＜5GCのCA公開鍵＞ 
+ 
+変数 説明 
+＜5GCのCA公開鍵＞ 5GCのCA公開鍵  
+ 
+チェックサム値が、転送前に CAサーバ上で確認したチェックサム値と同じであることを確認しま
+す。  
+# md5sum haas.crt  
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxx haas.crt  
+ 
+# md5sum root_cert_nw -ops.pem 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxx root_cert_nw -ops.pem 
+ 
+# md5sum root_cert_ne -ops.pem 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxx root_cert_ne -ops.pem 
+ 
+# md5sum ＜5GCのCA公開鍵＞ 
+xxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxx ＜5GCのCA公開鍵＞ 
+ 
+変数 説明 
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  指定されたファイルのチェックサム値（ 16進数表記、 32
+桁）を表示します。  
+＜5GCのCA公開鍵＞ 5GCのCA公開鍵  
+ 
+9 NW-OPSのルート証明書と NE-OPSのルート証明書を結合します。  
+NW-OPS及び NE-OPSにて使用している各 CAサーバ上より転送されたルート証明書を cacert.pem に
+追加します。  
+＜入力フォーマット＞  
+# cd /srv/common  
+# cat root_cert_nw -ops.pem > cacert.pem  
+# cat root_cert_ne -ops.pem >> cacert.pem  
+ 
+10 STEP 3で作成した秘密鍵 「haas. key」のパスフレーズを解除し 、/srv/nginx/ にコピー します。  
+＜入力フォーマット＞  
+# cd /srv/nginx/haas  
+# cp haas.key haas2.key  
+# openssl rsa -in haas2.key -out haas.key  
+# cp haas. key /srv/nginx/  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-31  # cp haas2.key /srv /nginx/ 
+opensslコマンドでパスフレーズを解除する際、 以下のように パスワード入力を求められるため、
+「■ CA証明書の設定手順」の STEP  3で設定したパスワードを入力し、 Enterキーを押下してくださ
+い。  
+# openssl rsa -in haas2.key -out haas.key  
+Enter pass phrase for haas2.key:  
+ 
+11 設定を有効にするため、系切 り替えを実施します。  
+11-1 HaaS VM のクラスタ設定 とACTノードを確認します。  
+＜入力フォーマット＞  
+# pcs status  
+Pacemaker のクラスタ設定が 「Online」であることを確認します。  
+# pcs status  
+    : （省略） 
+Node List:  
+  * Online: [ haas.0 haas.1 haas.2 ] 
+ 
+Full List of Resources:  
+  * Resource Group: haas:  
+    * filesystem        (ocf::heartbeat:Filesystem):    Started haas. 0 
+注： 「Started」と表示されているノードが ACTノードです。  
+ 
+11-2 STEP  11-1で確認した ACTノード以外の HaaS VM にログインします。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名 ＞@＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+＜HaaS VM の外部 IPア
+ドレス＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してくだ
+さい。  
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限
+に切り替えてください。  
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-32  11-3 ACT以外のノード 上で系切り替えを行い ます。  
+＜入力フォーマット＞  
+# pcs node standby ＜ACTのノード名 ＞ 
+ 
+変数 説明 
+＜ACTのノード 名＞ HaaS VM （ACT）のノード名  
+ 
+11-4 系切り替え完了後、旧 ACTノードを standbyから復帰させ ます。 
+＜入力フォーマット＞  
+# pcs node unstandby ＜ノード名＞  
+ 
+変数 説明 
+＜ノード 名＞ STEP  11-3で指定した HaaS VM （旧 ACT）のノード名  
+ 
+11-5 Pacemaker のクラスタ設定を確認します。  
+＜入力フォーマット＞  
+# pcs status  
+Pacemaker のクラスタ設定が 「Online」であることを確認します。  
+# pcs status  
+    : （省略） 
+Node List:  
+  * Online: [ haas.0 haas.1 haas.2 ] 
+ 
+12 ログアウトし ます。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施する必要が
+あります。ログイン中の PM、VMから抜けるまで繰り返し実施してください。  
+ 
+ 導入マニュアル  
+ 3 HaaS V M構築 
+ 
+© NEC Corporation 20 22 3-33  ■NE-OPS→HaaSのssh/sftp 通信設定  
+以下の手順（ STEP  1～STEP 5）を haas0～haas2に対して実施します。  
+ 
+STEP 操作 
+1 HaaS VM にログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 IPアドレス
+＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してくださ
+い。 
+root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替えてくださ
+い。  
+ 
+2 sshディレクトリを作成します。  
+2-1 /home/ne -opsにsshディレクトリを作成します。  
+＜入力フォーマット＞  
+# cd /home/ne -ops 
+# mkdir .ssh  
+ 
+2-2 ディレクトリの権限を設定します。  
+＜入力フォーマット＞  
+# chmod 700 .ssh  
+ 
+3 sshd_config を修正します。  
+＜入力フォーマット＞  
+# cd /etc/ssh  
+# vi sshd_config  
+以下を参考に 「TrustedUserCAKeys 」の設定を 修正します （★印部分） 。 
+ 
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-34             : （省略） 
+# BEGIN ANSIBLE MANAGED BLOCK EOF  
+TrustedUserCAKeys /etc/ssh/ ＜5GCのCA公開鍵＞ ★ 
+# END ANSIBLE MANAGED BLOCK EOF  
+ 
+変数 説明 
+＜5GCのCA公開鍵＞ 「■CA証明書の設定手順 」の STEP 7-4で/etc/ssh配下に格納し
+た5GCのCA公開鍵  
+ 
+4 sshサービスをリスタート します。  
+＜入力フォーマット＞  
+# systemctl restart sshd.service  
+# systemctl status sshd.service  
+エラーがなく、「 Active: active (running) 」と表示されることを確認します。  
+# systemctl status sshd.service  
+● sshd.service - OpenSSH server daemon  
+   Loaded: loaded (/usr/lib/systemd/system/sshd.service; enabled; vendor 
+preset: enabled)  
+   Active: active (running)  since Tue 2021 -11-16 22:56:34 JST; 1min 37s 
+ago 
+     Docs: man:sshd(8)  
+           man:sshd_config(5)  
+ Main PID: 40244 (sshd)  
+    Tasks: 1 (limit: 410379)  
+   Memory: 1.2M  
+   CGroup: /system.slice/sshd.service  
+           mq40244 /usr/sbin/sshd -D -oCiphers=aes25 6-
+gcm@openssh.com,chacha20 -poly1305@openssh.com,aes256 -ctr,aes256 -
+cbc,aes128 -gcm@openssh.com,aes128 -ctr> 
+: 
+ 
+5 ログアウトし ます。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施する必要が
+あります。ログイン中の PM、VMから抜けるまで繰り返し実施してください。  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-35  ■証明書の導通確認  
+STEP 操作 
+1 HaaS VM （ACT）にログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+初期構築時は operator ユーザを使用してください。  
+パスワードは「 opepass」です。  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続を 参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+2 証明書の接続を確認します。  
+クライアント： HaaS サーバ： NW-OPS、NE-OPSとしての 接続を確認します。  
+＜入力フォーマット＞  
+# openssl s_client -CAfile /srv/common/cacert.pem -connect ＜NW-OPSのFQDN
+＞:10443 
+# openssl s_client -CAfile /srv/common/cacert.pem -connect ＜NW-OPSのFQDN
+＞:9443 
+# openssl s_client -CAfile /srv/common/cacert.pem -connect ＜NE-OPSのFQDN
+＞:443 
+ 
+変数 説明 
+＜NW-OPSのFQDN＞ NW-OPSのFQDNを指定  
+＜NE-OPSのFQDN＞ NE-OPSのFQDNを指定  
+エラーが出ていないこと を確認します。  
+注： エラーが発生 した場合、 『 HaaSコントローラ操作マニュアル』の「 3.2.1 外部装置との疎
+通確認」を参照し、 NW-OPS、NE-OPSへの疎通に問題が無い事を確認して下さい。  
+ 
+  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-36  3.8 事後作業  
+不要なファイルの削除を実施します。  
+本手順は 全ての HaaS PM に対して実施します。 （順不同）  
+ 
+STEP 操作 
+1 HaaS PM にログインします。  
+HaaS PM へのログイン手順については、 「 2 PMの設定」の「■ HaaS PM へのログイン」を参照し
+てください。  
+2  不要な圧縮 VMイメージファイルを削除します。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# cd /home/ images 
+# rm ＜圧縮イメージファイル名＞  
+ 
+変数 説明 
+＜圧縮イメージファイル名＞  圧縮 VMイメージファイル名  
+例：haasctl_xxxx_comp.qcow2  
+  
+ 導入マニュアル  
+ 3 HaaS VM 構築 
+ 
+© NEC Corporation 20 22 3-37  3  不要な XMLファイルを削除します。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# cd /tmp 
+# rm ＜XMLファイル名＞  
+ 
+変数 説明 
+＜XMLファイル名＞  XMLファイル名  
+例：0系の場合   haasctl00_xxxx.xml  
+    1系の場合   haasctl01_xxxx.xml  
+    2系の場合   haasctl02_xxxx.xml  
+ 
+4  ログアウトします。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施する必要が
+あります。ログイン中 PMから抜けるまで繰り返し実施してください 。 
+ 
+ 
+ 導入マニュアル  
+ 4 各種設定  
+ 
+© NEC Corporation 20 22 4-1  4 各種設定  
+4.1 ログ収集設定  
+HaaSコントローラを起動した時点で ログ収集の設定 は完了しているため、追加で必要な設定はありません。  
+ログ収集の設定内容を確認する手順を以下に示します。  
+ 
+STEP 操作 
+1 HaaS VMにログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名 ＞@＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名 ＞ 一般ユーザのアカウント名  
+＜HaaS VM の外部 IPアドレス
+＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続 を参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+2 ログ収集の 設定内容を確認します。  
+操作ログの取得設定を確認する場合  
+＜入力フォーマット＞  
+# cat /root/.bash_profile  
+ 
+# .bash_profile  
+ 
+# Get the aliases and functions  
+if [ -f ~/.bashrc ]; then  
+        . ~/.bashrc  
+fi 
+ 
+# User specific environment and startup programs  
+PATH=$PATH:$HOME/bin  
+export PATH  
+if [ $(whoami) = "root" ]; then  
+        log_archive_directory=/var/log/operation  
+else 
+        log_archive_directory=/home/$(whoami)/log  
+ 導入マニュアル  
+ 4 各種設定  
+ 
+© NEC Corporation 20 22 4-2  fi 
+ 
+script -f ${log_archive_directory}/$(date +%Y%m%d_%H%M%S)_$(whoami).log  
+ 
+アプリログ（ dockerログ）の取得設定 を確認する場合  
+＜入力フォーマット＞  
+# cat /etc/rsyslog.d/10 -docker.conf  
+ 
+$template DockerLogs, 
+"/var/log/docker/%programname%_%$year%%$month%%$day%.log"  
+ 
+if $syslogfacility -text == 'daemon' and $programname contains 'docker -
+apps' then -?DockerLogs  
+& stop 
+ 
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-1  5 インストールファイルとサーバ設定の確認  
+5.1 OSバージョン ／カーネルバージョン 情報の確認 
+5.1.1  PM OSバージョン／カーネルバージョン情報の確認  
+HaaS PMを対象に 以下の手順を 実施します。  
+ 
+STEP 操作 
+1 HaaS PMにログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を参照して
+ください。  
+ 
+2 OSバージョン情報を確認します。  
+＜入力フォーマット＞  
+# cat /etc/redhat -release 
+OSバージョンが表示されることを 確認します。  
+# cat /etc/redhat -release 
+ 
+CentOS Linux release 8.2.2004  (Core) 
+ 
+3 カーネルバージョン情報 を確認します 。 
+＜入力フォーマット＞  
+# uname -a 
+「4.18.0 -193.14.2.el8_2.ng101.x86_64 」が表示されることを確認します。  
+# uname -a 
+ 
+Linux ＜PMのホスト名＞ 4.18.0-193.14.2.el8_2.ng101.x86_64  #1 SMP Sun Jul 26 
+03:54:29 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux  
+ 
+4 ログアウトします。  
+＜入力フォーマット＞  
+# exit 
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-2  5.1.2  VM OSバージョン ／カーネルバージョン情報の確認  
+HaaS  VMを対象に以下の手順を実施します。  
+ 
+STEP 操作 
+1 HaaS VMにログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+＜HaaS VM の外部 IPアドレス
+＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続 を参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+2 OSバージョン情報を確認します。  
+＜入力フォーマット＞  
+# cat /etc/redhat -release 
+OSバージョンが表示されることを確認します。  
+# cat /etc/redhat -release 
+ 
+CentOS Linux release 8.2.2004  (Core) 
+ 
+3 カーネルバージョン情報を確認します 。 
+＜入力フォーマット＞  
+# uname -a 
+「4.18.0 -193.14.2.el8_2.ng10 2.x86_64」が表示されることを確認します。  
+# uname -a 
+ 
+Linux ＜VMのホスト名＞  4.18.0-193.14.2.el8_2.ng10 2.x86_64 #1 SMP Sun Jul 26 
+03:54:29 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-3  4 ログアウトします。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施する必要が
+あります。ログイン中の PM、VMから抜けるまで繰り返し実施してください。  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-4  5.2 サーバ設定確認  
+5.2.1  PM IPアドレス ／サブネットマスクの確認  
+HaaS PMを対象に以下の手順を実施します。  
+ 
+STEP 操作 
+1 HaaS PMにログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を参照して
+ください。  
+ 
+2 IPアドレスとサブネット マスク設定を確認します 。 
+＜入力フォーマット＞  
+# ip a 
+『BoxUP環境定義書 _IPアドレス 』のHaaS PM のアドレスとサブネットマスクが 「br-haas-op」およ
+び「 br-haas-mng」のインタフェースに設定されていること を確認します 。以下は表示例です。  
+# ip a 
+ 
+           : （省略） 
+9: br-haas-mng: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP 
+group default qlen 1000  
+    link/ether 90:e2:ba:39:45:25 brd ff:ff:ff:ff:ff:ff  
+    inet ＜内部IPアドレス＞ /＜プレフィックス＞  brd 192.168.70.255 scope global 
+noprefixroute br -haas-mng 
+       valid_lft forever preferred_lft forever  
+    inet6 fe80::8cb9:497e:6923:6fec/64 scope link noprefixroute  
+       valid_lft forever preferred_lft forever  
+10: br-haas-op: <BROADCAST,MULTICAST,UP ,LOWER_UP> mtu 1500 qdisc noqueue state UP 
+group default qlen 1000  
+    link/ether 80:30:e0:1d:a7:f0 brd ff:ff:ff:ff:ff:ff  
+    inet ＜外部IPアドレス＞ /＜プレフィックス＞  brd 192.168.80.255 scope global 
+noprefixroute br -haas-op 
+       valid_lft forever preferred_lft forever  
+    inet6 fe80::7e10:541f:6712:e84a/64 scope link noprefixroute  
+       valid_lft forever preferred_lft forever  
+    link/ether fe:54:00:66:06:7f brd ff:ff:ff:ff:ff:ff  
+    inet6 fe80::fc54:ff:fe66:67f/64 scope l ink 
+       valid_lft forever preferred_lft forever  
+           : （省略） 
+ 
+3 ログアウトします。  
+＜入力フォーマット＞  
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-5  # exit 
+ 
+5.2.2  VM IPアドレス ／サブネットマスクの確認  
+HaaS VMを対象に以下の手順を実施します。  
+ 
+STEP 操作 
+1 HaaS VMにログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+＜HaaS VM の外部 IPアドレス
+＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続 を参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+2 IPアドレスとサブネット マスク設定を確認します。  
+＜入力フォーマット＞  
+# ip a 
+『BoxUP環境定義書 _IPアドレス 』の各Haas VM のアドレスとサブネットマスクが 「ens2」および
+「ens3」のインタフェースに設定されていること を確認します 。 
+# ip a 
+ 
+           : （省略） 
+2: ens2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group 
+default qlen 1000  
+    link/ether 52:54:00:4d:04:9c brd ff:ff:ff:ff:ff:ff  
+    inet ＜内部IPアドレス＞ /＜プレフィックス＞  brd 192.168.80.255 scope global 
+noprefixroute ens2  
+       valid_lft forever preferred_lft forever  
+    inet6 fe80::5054:ff:fe4d:49c/64 scope link  
+       valid_lft forever preferred_lft forever  
+3: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group 
+default qlen 1000  
+    link/ether 52:54:00:28:79:35 brd ff:ff:ff:ff:ff:ff  
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-6      inet ＜外部IPアドレス＞ /＜プレフィックス＞  brd 192.168.70.255 scope global 
+noprefixroute ens3  
+       valid_lft forever pref erred_lft forever  
+           : （省略） 
+ 
+3 ログアウトします。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施する必要が
+あります。ログイン中の PM、VMから抜けるまで繰り返し実施してください。  
+ 
+5.2.3  PM NTP の確認  
+HaaS PMを対象に以下の手順を実施します。  
+ 
+STEP 操作 
+1 HaaS PMにログインします。  
+HaaS PMへのログイン手順については、「 2 PMの設定」の「■ HaaS PM へのログイン」を参照して
+ください。  
+ 
+2 NTP設定を確認します。  
+＜入力フォーマット＞  
+# chronyc sources  
+接続先（Number of sources）が2つで、S列に「*」と「+」または「*」と「 -」が表示されることを
+確認します 。 
+また、 NTPサーバの IPアドレスが環境定義書と一致していることを確認します。  
+以下は、「 *」と「 +」の場合での表示例となります。  
+# chronyc sources  
+ 
+210 Number of sources = 2 
+MS Name/IP address    Stratum  Poll  Reach  LastRx  Last sample  
+===============================================================================  
+^* ＜NTPサーバ1＞                1    6      17      26   -38us[ -112us]+/ - 41ms 
+^+ ＜NTPサーバ2＞                1    6      17      26   -69us[ -113us]+/ - 41ms 
+ 
+変数 説明 
+＜NTPサーバ 1＞、
+＜NTPサーバ 2＞ NTPサーバ 1および NTPサーバ 2のIPアドレス  
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-7   
+3 ログアウトします。  
+＜入力フォーマット＞  
+# exit 
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-8  5.2.4  VM NTP の確認  
+HaaS VMを対象に以下の手順を実施します。  
+ 
+STEP 操作 
+1 HaaS VMにログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部IPアドレス ＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+＜HaaS VM の外部 IPアドレス
+＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続 を参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+2 NTP設定を確認します。  
+＜入力フォーマット＞  
+# chronyc sources  
+接続先（Number of sources ）が2つで、S列に「*」と「 +」または 「*」と「 -」が表示されることを
+確認します 。 
+また、 NTPサーバの IPアドレスが環境定義書と一致していることを確認します。  
+以下は、「 *」と「 +」の場合での表示例となります。  
+# chronyc sources  
+ 
+210 Number of sources = 2 
+MS Name/IP address    Stratum  Poll  Reach  LastRx  Last sample  
+================================================================== =============  
+^* ＜NTPサーバ1＞                1    6      17      26   -38us[ -112us]+/ - 41ms 
+^+ ＜NTPサーバ2＞                1    6      17      26   -69us[ -113us]+/ - 41ms 
+ 
+変数 説明 
+＜NTPサーバ 1＞、
+＜NTPサーバ 2＞ NTPサーバ 1および NTPサーバ 2のIPアドレス  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-9  3 ログアウトします。  
+＜入力フォーマット＞  
+# exit 
+注： ログスクリプトの停止や root権限、一般ユーザのログアウトのため複数回実施する必要が
+あります。ログイン中の PM、VMから抜けるまで繰り返し実施してください。  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-10  5.3 ミドルウェアバージョン確認  
+本項の 5.3.1～5.3.13に示す各手順では、はじめに HaaSコントローラの ACT VM へのログインが必要です。以
+下にログイン手順を示します。  
+ 
+STEP 操作 
+1 ACT VMにログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続 を参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+5.3.1  Pacemaker バージョン確認  
+Pacemaker のバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# pacemakerd --version 
+「2.0.4-6」であることを確認します 。 
+Pacemaker 2.0.4-6.el8_3.1 
+Written by Andrew Beekhof  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-11  5.3.2  Corosync バージョン確認  
+Corosync のバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# corosync -v 
+「3.0.3」であることを確認します 。 
+Corosync Cluster Engine, version ' 3.0.3' 
+Copyright (c) 2006 -2018 Red Hat, Inc.  
+ 
+5.3.3  DRBDバージョン確認  
+DRBDのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# drbdadm --version 
+「9.13.1」であることを確認します 。 
+DRBDADM_BUILDTAG=GIT -
+hash:¥ b24b0f7e42d500d3538d7eeffa017ec78d08f918 ¥ build¥ by¥ mockbuild@ ¥,¥ 
+2020-06-24¥ 03:20:32  
+DRBDADM_API_VERSION=2  
+DRBD_KERNEL_VERSION_CODE=0x090017  
+DRBD_KERNEL_VERSION=9.0.23  
+DRBDADM_VERSION_CODE=0x090d01  
+DRBDADM_VERSION= 9.13.1 
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-12  5.3.4  Cobbler バージョン確認  
+Cobblerのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# cobbler --version 
+「3.1.2」であることを確認します 。 
+# cobbler --version 
+ 
+Cobbler 3.1.2 
+  source: ?, ?  
+  build time: Sun May 31 02:32:34 2020  
+ 
+5.3.5  Dockerバージョン確認  
+Dockerのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker --version 
+「19.03.1 3」であることを確認します 。 
+Docker version 19.03.13, build 48a66213fe  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-13  5.3.6  AWXバージョン確認  
+AWXのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker exec -it awx_task /bin/bash  
+bash-4.4# awx --version 
+「14.0.0」であることを確認します 。 
+14.0.0 
+ 
+2 dockerコンテナから抜けます。  
+「Ctrl」キーと「 p」キーを同時に押し、次に「 Ctrl」キーと「 q」キーを同時に押します。  
+ 
+5.3.7  ansibleバージョン確認  
+ansibleのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker exec -it awx_task /bin/bash  
+bash-4.4# ansible --version 
+「2.9.11」であることを確認します 。 
+ansible 2.9.11 
+  config file = /etc/ansible/ansible.cfg  
+  configured module search path = 
+['/var/lib/awx/.ansible/plugins/modules', 
+'/usr/share/ansible/plugins/modules']  
+  ansible python module location = /usr/lib/python3.6/site -
+packages/ansible  
+  executable location = /usr/bin/ansible  
+  python version = 3.6.8 (default, Apr 16 2020, 01:36:27) [GCC 8.3.1 
+20191121 (Red Hat 8.3.1 -5)] 
+ 
+2 dockerコンテナから抜けます。  
+「Ctrl」キーと「 p」キーを同時に押し、次に「 Ctrl」キーと「 q」キーを同時に押します。  
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-14  5.3.8  Zabbixサーバ  バージョン確認  
+Zabbixサーバのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker exec -it zabbix_server /bin/bash  
+[root@abd0fc6fc62e zabbix]# zabbix_server --version 
+「4.0.22」であることを確認します 。 
+zabbix_server (Zabbix) 4.0.22 
+Revision 073cb9f 29 June 2020, compilation time: Jun 29 2020 13:25:09  
+ 
+Copyright (C) 2020 Zabbix SIA  
+License GPLv2+: GNU GPL version 2 or later 
+<http://gnu.org/licenses/gpl.html>.  
+This is free software: you are free to change and redistribute it 
+according to  
+the license. There is NO WARRANTY, to the extent permitted by law.  
+ 
+This product includes software developed by the OpenSS L Project  
+for use in the OpenSSL Toolkit (http://www.openssl.org/).  
+ 
+Compiled with OpenSSL 1.0.2k -fips  26 Jan 2017  
+Running with OpenSSL 1.0.2k -fips  26 Jan 2017  
+ 
+2 dockerコンテナから抜けます。  
+「Ctrl」キーと「 p」キーを同時に押し、次に「 Ctrl」キーと「 q」キーを同時に押します。  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-15  5.3.9  Zabbix  Agentバージョン確認  
+Zabbix  Agentのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# zabbix_agentd --version 
+「4.0.22」であることを確認します 。 
+zabbix_agentd (daemon) (Zabbix) 4.0.22 
+Revision 073cb9f 29 June 2020, compilation time: Jun 29 2020 14:13:44  
+ 
+Copyright (C) 2020 Zabbix SIA  
+License GPLv2+: GNU GPL version 2 or later 
+<http://gnu.org/licenses/gpl.html>.  
+This is free software: you are free to change and redistribute it 
+according to  
+the license. There is NO WARRANTY, to the extent permitted by law.  
+ 
+This product includes software  developed by the OpenSSL Project  
+for use in the OpenSSL Toolkit (http://www.openssl.org/).  
+ 
+Compiled with OpenSSL 1.0.2k -fips  26 Jan 2017  
+Running with OpenSSL 1.0.2k -fips  26 Jan 2017  
+ 
+ 導入マニュアル  
+ 5 インストールファイルとサ ーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-16  5.3.10  GitLabバージョン確認  
+GitLabのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker exec -it gitlab /bin/bash  
+root@402953f88829:/# gitlab -rake gitlab:env:info  
+「13.2.4」であることを確認します 。 
+             : （省略） 
+GitLab information  
+Version:        13.2.4 
+Revision:       136d3a02dca  
+Directory:      /opt/gitlab/embedded/service/gitlab -rails 
+DB Adapter:     PostgreSQL  
+DB Version:     11.7  
+URL:            http://192.168.80.130/gitlab  
+HTTP Clone URL: http://192.168.80.130/gitlab/some -group/some -project.git  
+SSH Clone URL:  git@192.168.80.130:some -group/so me-project.git  
+Using LDAP:     no  
+Using Omniauth: yes  
+Omniauth Providers:  
+             : （省略） 
+ 
+2 dockerコンテナから抜けます。  
+「Ctrl」キーと「 p」キーを同時に押し、次に「 Ctrl」キーと「 q」キーを同時に押します。  
+ 
+5.3.11  PostgreSQL バージョン確認  
+PostgresSQL のバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker exec -it postgres /bin/bash  
+root@952a95deed0c:/# postgres --version 
+「10.14」であることを確認します 。 
+postgres (PostgreSQL) 10.14 
+ 導入マニュアル  
+ 5 インストールファイルとサーバ設定の確認  
+ 
+© NEC Corporation 20 22 5-17  2 dockerコンテナから抜けます。  
+「Ctrl」キーと「 p」キーを同時に押し、次に「 Ctrl」キーと「 q」キーを同時に押します。  
+ 
+5.3.12  Nginxバージョン確認  
+Nginxのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker exec -it nginx /bin/bash  
+root@9c2d67144c92:/# nginx -v 
+「1.19.1」であることを確認します 。 
+nginx version: nginx/ 1.19.1 
+ 
+2 dockerコンテナから抜けます。  
+「Ctrl」キーと「 p」キーを同時に押し、次に「 Ctrl」キーと「 q」キーを同時に押します。  
+ 
+5.3.13  Djangoバージョン確認  
+Djangoのバージョン確認手順を以下に示します。  
+ 
+STEP 操作 
+1 バージョン情報を確認します。  
+＜入力フォーマット＞  
+# docker exec -it cmdb /bin/bash  
+root@eb240a3ff12b:/django# django -admin --version 
+「3.1」であることを確認します 。 
+3.1 
+ 
+2 dockerコンテナから抜けます。  
+「Ctrl」キーと「 p」キーを同時に押し、次に「 Ctrl」キーと「 q」キーを同時に押します。  
+ 
+ 
+ 導入マニュアル  
+ 6 システム動作の確認  
+ 
+© NEC Corporation 20 22 6-1  6 システム動作の確認  
+6.1 クラスタ動作確認  
+Pacemaker および Corosyncによるクラスタ 状態の正常性を 確認します。  
+ 
+STEP 操作 
+1 HaaS VM （ACT）にログインします。  
+以下のコマンドを実行します。  
+＜入力フォーマット＞  
+# ssh ＜ユーザ名＞ @＜HaaS VM の外部VIP＞ 
+ 
+変数 説明 
+＜ユーザ名＞  一般ユーザのアカウント名  
+＜HaaS VM の外部 VIP＞ 『BoxUP環境定義書 _IPアドレス 』の外部接続 を参照してくださ
+い。 
+注： root権限を使った操作をする為 、一般ユーザからのログイン後、 su - でroot権限に切り替
+えてください。  
+ 
+2 ACT VM 上でクラスタの正常性を確認します。  
+＜入力フォーマット＞  
+「Node List 」にクラスタ構成を組んでいるノード全てが 「Online」となっていること、  
+「Full list of resource 」に表示されるリソースの状態が「 Started」と表示されていることを確認しま
+す。  
+# pcs status  
+         : （省略） 
+Node List:  
+  * Online: [  ccc...c ] 
+         : （省略） 
+Full list of resources:  
+ 
+  * ＜リソース名＞ :        Started ＜ノード名＞  
+  * ＜リソース名＞ :        Started ＜ノード名＞  
+          : （省略） 
+ # pcs status  
+ 導入マニュアル  
+ 6 システム動作の確認  
+ 
+© NEC Corporation 20 22 6-2  変数 説明 
+Online: [ ccc...c  ] Online状態のノード名を半角スペースで区切って表示します。  
+表示例：haas.0  haas.1  haas.2  
+注： Online状態のノードがない場合は、項目自体を表示しません。  
+＜リソース名＞  filesystem 、postgres などの個別の リソース名を表示します。  
+＜ノード名＞  個別のノード名を表示します。  
+表示例： haas.0  
+ 
+6.2 外部装置との疎通確認  
+HaaSコントローラと外部装置との間の疎通を確認します。  
+参考：  外部装置との疎通確認の詳細については、 『HaaSコントローラ 操作マニュアル』の「 3.2.1 外部装
+置との疎通確認 」を参照してください。  
+ 
+ 
+  
+  
+ 
+   
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+導入マニュアル  
+2022年11月 第5.4版 
+ 
+NEC Corporation  
+© 2022 NEC Corporation  All rights reserved.  
+ 

@@ -1,0 +1,1056 @@
+[
+  {
+    "Page 0": []
+  },
+  {
+    "Page 1": []
+  },
+  {
+    "Page 2": []
+  },
+  {
+    "Page 3": []
+  },
+  {
+    "Page 4": []
+  },
+  {
+    "Page 5": []
+  },
+  {
+    "Page 6": []
+  },
+  {
+    "Page 7": []
+  },
+  {
+    "Page 8": []
+  },
+  {
+    "Page 9": []
+  },
+  {
+    "Page 10": []
+  },
+  {
+    "Page 11": []
+  },
+  {
+    "Page 12": []
+  },
+  {
+    "Page 13": []
+  },
+  {
+    "Page 14": [
+      "# vi /etc/hostname  ",
+      "# hostname -F /etc/hostname  ",
+      "# hostname  "
+    ]
+  },
+  {
+    "Page 15": [
+      "# nmcli c add type bridge ifname br -haas-mng con-name br-haas-mng ",
+      "# nmcli c mod br -haas-mng ipv4.method manual ipv4.addresses \" \uff1cIP\u30a2\u30c9\u30ec\u30b9 \uff0f\u30d7",
+      "# nmcli c up br -haas-mng ",
+      "# nmcli c mod eno1 master br-haas-mng ",
+      "# nmcli c mod eno2 master br -haas-mng ",
+      "# nmcli c mod eno3 master br -haas-mng ",
+      "# nmcli c mod eno4 master br -haas-mng ",
+      "# nmcli c up eno1  ",
+      "# nmcli c up eno2  ",
+      "# nmcli c up eno3  ",
+      "# nmcli c up eno4  ",
+      "# nmcli c s eno1 |grep connection.autoconnect:  ",
+      "# nmcli c s eno2 |grep connection.autoconnect:  ",
+      "# nmcli c s eno3 |grep connection.autoconnect:  ",
+      "# nmcli c s eno4 |grep connection.autoconnect:  "
+    ]
+  },
+  {
+    "Page 16": [
+      "# nmcli c mod eno1 autoconnect yes  ",
+      "# nmcli c mod eno2 autoconnect yes  ",
+      "# nmcli c mod eno3 autoconnect yes  ",
+      "# nmcli c mod eno4 autoconnect yes  ",
+      "# nmcli c s eno1 |grep connection.autoconnect:  ",
+      "# nmcli c s eno2 |grep connection.autoconnect:  ",
+      "# nmcli c s eno3 |grep connection.autoconnect:  ",
+      "# nmcli c s eno4 |grep connection.autoconnect:  "
+    ]
+  },
+  {
+    "Page 17": [
+      "# nmcli c add type bridge ifname br -haas-op con-name br-haas-op ",
+      "# nmcli c mod br-haas-op ipv4.method manual ipv4.addresses \" \uff1cIP\u30a2\u30c9\u30ec\u30b9 \uff0f\u30d7",
+      "# nmcli c up br -haas-op ",
+      "# nmcli c add type vlan ifname ens1f0. \uff1cVLAN ID \uff1e dev ens1f0 id \uff1cVLAN ID \uff1e ",
+      "# nmcli c add type vlan ifname ens1f1. \uff1cVLAN ID \uff1e dev ens1f1 id \uff1cVLAN ID \uff1e ",
+      "# nmcli c add type vlan ifname ens2f0. \uff1cVLAN ID \uff1e dev ens2f0 id \uff1cVLAN ID \uff1e ",
+      "# nmcli c add type vlan ifname ens2f1. \uff1cVLAN ID \uff1e dev ens2f1 id \uff1cVLAN ID \uff1e ",
+      "# nmcli c mod vlan -ens1f0. \uff1cVLAN ID \uff1e master br -haas-op ",
+      "# nmcli c mod vlan -ens1f1. \uff1cVLAN ID \uff1e master br -haas-op ",
+      "# nmcli c mod vlan -ens2f0. \uff1cVLAN ID \uff1e master br -haas-op ",
+      "# nmcli c mod vlan -ens2f1. \uff1cVLAN ID \uff1e master br -haas-op "
+    ]
+  },
+  {
+    "Page 18": [
+      "# nmcli c up vlan -ens1f0. \uff1cVLAN ID \uff1e ",
+      "# nmcli c up vlan -ens1f1. \uff1cVLAN ID \uff1e ",
+      "# nmcli c up vlan-ens2f0. \uff1cVLAN ID \uff1e ",
+      "# nmcli c up vlan -ens2f1. \uff1cVLAN ID \uff1e ",
+      "# nmcli c m br -haas-op ipv4.gateway \"\uff1cnexthop \u306eIP\u30a2\u30c9\u30ec\u30b9\uff1e \" ",
+      "# nmcli c reload ",
+      "# nmcli c down br -haas-op ",
+      "# nmcli c up br -haas-op "
+    ]
+  },
+  {
+    "Page 19": [
+      "# zabbix_agentd --version ",
+      "# getenforce  "
+    ]
+  },
+  {
+    "Page 20": [
+      "# vi /etc/selinux/config  ",
+      "# This file controls the state of SELinux on the system.  ",
+      "# SELINUX= can take one of these three values:  ",
+      "#     enforcing - SELinux security policy is enforced.  ",
+      "#     permissive - SELinux prints warnings instead of enforcing.  ",
+      "#     disabled - No SELinux policy is loaded.  ",
+      "# SELINUXTYPE= can take one of these two values:  ",
+      "#     targeted - Targeted processes are protected,  ",
+      "#     minimum - Modification of targeted policy. Only selected ",
+      "#     mls - Multi Level Security protection.  ",
+      "# shutdown -r now ",
+      "# getenforce  ",
+      "# firewall -cmd --add-port=10050/tcp --permanent  ",
+      "# firewall -cmd --reload ",
+      "# firewall -cmd --list-all "
+    ]
+  },
+  {
+    "Page 21": [
+      "# vi /etc/zabbix/zabbix_agentd.conf  ",
+      "# This is a configuration file for Zabbix agent daemon (Unix)  ",
+      "# To get more information about Zabbix, visit http://www.zabbix.com  ",
+      "############ GENERAL PARAMETERS #################  ",
+      "### Option: PidFile  ",
+      "#       Name of PID file.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# PidFile=/tmp/zabbix_agentd.pid  ",
+      "### Option: LogType  ",
+      "#       Specifies where log messages are written to:  ",
+      "#               system  - syslog ",
+      "#               file    - file specified with LogFile parameter  ",
+      "#               console - standard output  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# LogType=file  ",
+      "### Option: LogFile  ",
+      "#       Log file name for LogType 'file' parameter.  ",
+      "# ",
+      "# Mandatory: yes, if LogType is set to file, otherwise no  ",
+      "# Default:  ",
+      "# LogFile=  ",
+      "### Option: LogFileSize  ",
+      "#       Maximum size of log file in MB.  ",
+      "#       0 - disable automatic log rotation.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 0 -1024 ",
+      "# Default:  ",
+      "# LogFileSize=1  "
+    ]
+  },
+  {
+    "Page 22": [
+      "### Option: DebugLevel  ",
+      "#       Specifies debug level:  ",
+      "#       0 - basic information about starting and stopping of Zabbix ",
+      "#       1 - critical information  ",
+      "#       2 - error information  ",
+      "#       3 - warnings  ",
+      "#       4 - for debugging (produces lots of information)  ",
+      "#       5 - extended debugging (produces even more information)  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 0 -5 ",
+      "# Default:  ",
+      "# DebugLevel=3  ",
+      "### Option: SourceIP  ",
+      "#       Source IP address for outgoing connec tions. ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# SourceIP=  ",
+      "### Option: EnableRemoteCommands  ",
+      "#       Whether remote commands from Zabbix server are allowed.  ",
+      "#       0 - not allowed  ",
+      "#       1 - allowed ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# EnableRemoteCommands=0  ",
+      "### Option: LogRemoteCommands  ",
+      "#       Enable logging of executed shell commands as warnings.  ",
+      "#       0 - disabled  ",
+      "#       1 - enabled ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# LogRemoteCommands=0  ",
+      "##### Passive checks  related ",
+      "### Option: Server  "
+    ]
+  },
+  {
+    "Page 23": [
+      "#       Incoming connections will be accepted only from the hosts listed ",
+      "#       If IPv6 suppor t is enabled then '127.0.0.1', '::127.0.0.1', ",
+      "#       and '::/0' will allow any IPv4 or IPv6 address.  ",
+      "#       '0.0.0.0/0' can be used to allow any IPv4 address.  ",
+      "#       Example: ",
+      "# ",
+      "# Mandatory: yes, if StartAgents is not explicitly set to 0  ",
+      "# Default:  ",
+      "# Server=  ",
+      "### Option: ListenPort  ",
+      "#       Agent will listen on this port for connections from the server.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 1024 -32767 ",
+      "# Default:  ",
+      "# ListenPort=10050  ",
+      "### Option: ListenIP  ",
+      "#       List of comma delimited IP addresses that the agent should listen ",
+      "#       First IP address is sent to Zabbix server if connecting to it to ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# ListenIP=0.0.0.0  ",
+      "### Option: StartAgents  ",
+      "#       Number of pre -forked instances of zabbix_agentd that process passive ",
+      "#       If set to 0, disables passive checks and the agent will not listen ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 0 -100 ",
+      "# Default:  ",
+      "# StartAgents=3  ",
+      "##### Active checks related  ",
+      "### Option: ServerActive  "
+    ]
+  },
+  {
+    "Page 24": [
+      "#       If port is not specified, default port is used.  ",
+      "#       IPv6 addresses must be enclosed in square brackets if port for that ",
+      "#       If port is not specified, square brackets for IPv6 addresses are ",
+      "#       If this parameter is not specified, a ctive checks are disabled.  ",
+      "#       Example: ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# ServerActive=  ",
+      "### Option: Hostname  ",
+      "#       Unique, case sensitive hostname.  ",
+      "#       Required for active checks and must match hostname as configured on ",
+      "#       Value is acquired from HostnameItem if undefined.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# Hostname=  ",
+      "#Hostname=Zabbix server  \u2605\u201d#\u201d\u3067\u30b3\u30e1\u30f3\u30c8\u30a2\u30a6\u30c8  ",
+      "### Option: HostnameItem  ",
+      "#       Item used for generating Hostname if it is undefined. Ignored if ",
+      "#       Does not support UserParameters or aliases.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# HostnameItem=system.hostname  ",
+      "### Option: HostMetadata  ",
+      "#       Optional parameter that defines host metadata.  ",
+      "#       Host metadata is used at host auto -registration process.  ",
+      "#       An agent will issue an error and not start if the value is over ",
+      "#       If not def ined, value will be acquired from HostMetadataItem.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 0 -255 characters  "
+    ]
+  },
+  {
+    "Page 25": [
+      "# HostMetadata=  ",
+      "### Option: HostMetadataItem  ",
+      "#       Optional parameter that defines an item used for getting host ",
+      "#       Host metadata is used at host auto -registration process.  ",
+      "#       During an auto -registration request an agent will log a warning ",
+      "#       the value returned by specified item is over limit of 255 ",
+      "#       This option is only used when HostMetadata is not defined.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# HostMetadataItem=  ",
+      "### Option: RefreshActiveChecks  ",
+      "#       How often list of active checks is refreshed, in seconds.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 60 -3600 ",
+      "# Default:  ",
+      "# RefreshActive Checks=120  ",
+      "### Option: BufferSend  ",
+      "#       Do not keep data longer than N seconds in buffer.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 1 -3600 ",
+      "# Default:  ",
+      "# BufferSend=5  ",
+      "### Option: BufferSize  ",
+      "#       Maximum number of values in a memory buffer. The agent will send  ",
+      "#       all collected data to Zabbix Server or Proxy if the buffer is full.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 2 -65535 ",
+      "# Default:  ",
+      "# BufferSize=100  ",
+      "### Option: MaxLinesPerSecond  ",
+      "#       Maximum number of new lines the agent will send pe r second to Zabbix "
+    ]
+  },
+  {
+    "Page 26": [
+      "#       The provided value will be overridden by the parameter 'maxlines',  ",
+      "#       provided in 'log' or 'logrt' item keys.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 1 -1000 ",
+      "# Default:  ",
+      "# MaxLinesPerSecond=20  ",
+      "############ ADVANCED PARAMETERS #################  ",
+      "### Option: Alias  ",
+      "#       Sets an alias for an item key. It can be used to substitute long and ",
+      "#       Multiple Alias parameters may  be present. Multiple parameters with ",
+      "#       Different Alias keys may reference the same item key.  ",
+      "#       For example, to retrieve the ID of user 'zabbix':  ",
+      "#       Alias=zabbix.userid:vfs.file.regexp[/etc/passwd,^zabbix:.:([0 -",
+      "#       Now shorthand key zabbix.userid may be used to retrieve data.  ",
+      "#       Aliases can be used in HostMetadataItem but not in HostnameItem ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range:  ",
+      "# Default:  ",
+      "### Option: Timeout  ",
+      "#       Spend no more than Timeout seconds on processing  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 1 -30 ",
+      "# Default:  ",
+      "# Timeout=3  ",
+      "### Option: AllowRoot  ",
+      "#       Allow the agent to run as 'root'. If disabled and the agent is ",
+      "#       will try to switch to the user specified by the User configuration ",
+      "#       Has no effect if started under a regular user.  ",
+      "#       0 - do not allow  ",
+      "#       1 - allow ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  "
+    ]
+  },
+  {
+    "Page 27": [
+      "### Option: User  ",
+      "#       Drop privileges to a specific, existing user on the system.  ",
+      "#       Only has effect if run as 'root' and AllowRoot is disabled.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# User=zabbix  ",
+      "### Option: Include  ",
+      "#       You  may include individual files or all files in a directory in the ",
+      "#       Installing Zabbix will create include directory in /usr/local/etc, ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# Include=  ",
+      "# Include=/usr/local/etc/zabbix_agentd.userparams.conf  ",
+      "# Include=/usr/local/etc/zabbix_agentd.conf.d/  ",
+      "# Include=/usr/local/etc/zabbix_agentd.conf.d/*.conf  ",
+      "####### USER -DEFINED MONITORED PARAMETERS #######  ",
+      "### Option: UnsafeUserParameters  ",
+      "#       Allow all characters to be passed in arguments to user -defined ",
+      "#       The following characters are not allowed:  ",
+      "#       \u00a5 ' \" ` * ? [ ] { } ~ $ ! & ; ( ) < > | # @  ",
+      "#       Additionally, newline characters a re not allowed.  ",
+      "#       0 - do not allow  ",
+      "#       1 - allow ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Range: 0 -1 ",
+      "# Default:  ",
+      "# UnsafeUserParameters=0  ",
+      "### Option: UserParameter  ",
+      "#       User -defined parameter to monitor. There can be several user -defined "
+    ]
+  },
+  {
+    "Page 28": [
+      "#       See 'zabbix_agentd' directory for examples.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# UserParameter=  ",
+      "####### LOADABLE MODULES #######  ",
+      "### Option: LoadModulePath  ",
+      "#       Full path to location of agent modules.  ",
+      "#       Default depends on compilation options.  ",
+      "#       To see the default path run command \"zabbix_agentd --help\". ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# LoadModulePath=${libdir}/modules  ",
+      "### Option: LoadModule  ",
+      "#       Module to load at  agent startup. Modules are used to extend ",
+      "#       Formats:  ",
+      "#               LoadModule=<module.so>  ",
+      "#               LoadModule=<path/module.so>  ",
+      "#               LoadModule=</abs_path/module.so>  ",
+      "#       Either the module must be lo cated in directory specified by ",
+      "#       If the preceding path is absolute (starts with '/') then ",
+      "#       It is allowed to include multiple LoadModule parameters.  ",
+      "# ",
+      "# Mandat ory: no ",
+      "# Default:  ",
+      "# LoadModule=  ",
+      "####### TLS -RELATED PARAMETERS #######  ",
+      "### Option: TLSConnect  ",
+      "#       How the agent should connect to server or proxy. Used for active ",
+      "#       Only one value can be specified:  ",
+      "#               unencrypted - connect without encryption  ",
+      "#               psk         - connect using TLS and a pre -shared key  ",
+      "#               cert        - connect using TLS and a certificate  ",
+      "# ",
+      "# Mandatory: yes, if TLS certificate or PSK parameters are defined (even ",
+      "# Default:  ",
+      "# TLSConnect=unencrypted  "
+    ]
+  },
+  {
+    "Page 29": [
+      "### Option: TLSAccept  ",
+      "#       What incoming connections to accept.  ",
+      "#       Multiple values can be specified, separated by comma:  ",
+      "#               unencrypted - accept connections without encrypti on ",
+      "#               psk         - accept connections secured with TLS and a pre -",
+      "#               cert        - accept connections secured with TLS and a ",
+      "# ",
+      "# Mandatory: yes, if TLS certificate or PSK parameters are defined (even ",
+      "# Default:  ",
+      "# TLSAccept=unencrypted  ",
+      "### Option: TLSCAFile  ",
+      "#       Full pathname of a file containing the top -level CA(s) certificates ",
+      "#       peer certificate verification.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCAFile=  ",
+      "### Option: TLSCRLFile  ",
+      "#       Full pathname of a file containing revoked certificates.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCRLFile=  ",
+      "### Option: TLSServerCertIssuer  ",
+      "#      Allowed server certificate issuer.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSServerCertIssuer=  ",
+      "### Option: TLSServerCertSubject  ",
+      "#      Allowed server certificate subject.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSServerCertSubject=  ",
+      "### Option: TLSCertFile  ",
+      "#       Full pathname of a file containing the agent certificate or ",
+      "# "
+    ]
+  },
+  {
+    "Page 30": [
+      "# Default:  ",
+      "# TLSCertFile=  ",
+      "### Option: TLSKeyFile  ",
+      "#       Full pathname of a file containing the agent private key.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSKeyFile=  ",
+      "### Option: TLSPSKIdentity  ",
+      "#       Unique, case sensitive string used to identify the pre-shared key.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSPSKIdentity=  ",
+      "### Option: TLSPSKFile  ",
+      "#       Full pathname of a file containing the pre -shared key.  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSPSKFile=  ",
+      "####### For advanced users - TLS ciphersuite selection cri teria #######  ",
+      "### Option: TLSCipherCert13  ",
+      "#       Cipher string for OpenSSL 1.1.1 or newer in TLS 1.3.  ",
+      "#       Override the default ciphersuite selection criteria for certificate -",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCipherCert13=  ",
+      "### Option: TLSCipherCert  ",
+      "#       GnuTLS priority string or OpenSSL (TLS 1.2) cipher string.  ",
+      "#       Override the default ciphersuite selection criteria for certificate -",
+      "#       Example for GnuTLS:  ",
+      "#               NONE:+V ERS-TLS1.2:+ECDHE -RSA:+RSA:+AES -128-GCM:+AES -128-",
+      "#       Example for OpenSSL:  ",
+      "#               EECDH+aRSA+AES128:RSA+aRSA+AES128  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCipherCert=  "
+    ]
+  },
+  {
+    "Page 31": [
+      "### Option: TLSCipherPSK13  ",
+      "#       Cipher string for OpenSSL 1.1.1 or newer in TLS 1.3.  ",
+      "#       Override the default ciphersuite selection criteria for PSK -based ",
+      "#       Example:  ",
+      "#               TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCipherPSK13=  ",
+      "### Option: TLSCipherPSK  ",
+      "#       GnuTLS priority string or OpenSSL (TLS 1.2) cipher string.  ",
+      "#       Override the default ciphersuite selection criteria for PSK -based ",
+      "#       Example for GnuTLS:  ",
+      "#               NONE:+VERS -TLS1.2:+ECDHE -PSK:+PSK:+AES -128-GCM:+AES -128-",
+      "#       Example for OpenSSL:  ",
+      "#               kECDHEPSK+AES128:kPSK+AES128  ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCipherPSK=  ",
+      "### Option: TLSCip herAll13  ",
+      "#       Cipher string for OpenSSL 1.1.1 or newer in TLS 1.3.  ",
+      "#       Override the default ciphersuite selection criteria for certificate - ",
+      "#       Example:  ",
+      "#               ",
+      "# ",
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCipherAll13=  ",
+      "### Option: TLSCipherAll  ",
+      "#       GnuTLS priority string or OpenSSL (TLS 1.2) cipher string.  ",
+      "#       Override the default ciphersuite selection criteria for certificate - ",
+      "#       Example for GnuTLS:  ",
+      "#               NONE:+VERS -TLS1.2:+ECDHE -RSA:+RSA:+ECDHE -PSK:+PSK:+AES -128-",
+      "#       Example for OpenSSL:  ",
+      "#               "
+    ]
+  },
+  {
+    "Page 32": [
+      "# Mandatory: no  ",
+      "# Default:  ",
+      "# TLSCipherAll=  ",
+      "#UserParameter \u2605 ",
+      "# common \u2605 ",
+      "# crond \u2605 ",
+      "# PID Check \u2605 ",
+      "#vi /usr/lib/systemd/system/zabbix -agent.service  ",
+      "#User=zabbix  \u2605\u201d#\u201d\u3067\u30b3\u30e1\u30f3\u30c8\u30a2\u30a6\u30c8  ",
+      "#Group=zabbix  \u2605\u201d#\u201d\u3067\u30b3\u30e1\u30f3\u30c8\u30a2\u30a6\u30c8  "
+    ]
+  },
+  {
+    "Page 33": [
+      "# systemctl daemon-reload ",
+      "# systemctl restart zabbix -agent ",
+      "# systemctl status zabbix -agent ",
+      "# systemctl enable zabbix -agent ",
+      "# systemctl is -enabled zabbix -agent ",
+      "# systemctl is -enabled zabbix-agent "
+    ]
+  },
+  {
+    "Page 34": [
+      "# vi /etc/chrony.conf  ",
+      "# Use public servers from the pool.ntp.org project.  ",
+      "# Please consider joining the pool (http://www.pool.ntp.org/join.html).  ",
+      "#pool 2.centos.pool.ntp.org iburst  \u2605\u201d#\u201d\u3067\u30b3\u30e1\u30f3\u30c8\u30a2\u30a6\u30c8  ",
+      "# systemctl start chronyd  ",
+      "# systemctl status chronyd  "
+    ]
+  },
+  {
+    "Page 35": [
+      "# systemctl enable chronyd  ",
+      "# systemctl is -enabled chronyd ",
+      "# systemctl is -enabled chronyd  "
+    ]
+  },
+  {
+    "Page 36": [
+      "# cd /etc/ssh  ",
+      "# vi sshd_config  ",
+      "#PermitRootLogin yes  \u2605\u201c\uff03\u201d\u3067\u30b3\u30e1\u30f3\u30c8\u30a2\u30a6\u30c8  ",
+      "# systemctl restart sshd.service  ",
+      "# systemctl status sshd.service  ",
+      "# systemctl status sshd.service  "
+    ]
+  },
+  {
+    "Page 37": [
+      "# mkdir /home/images  "
+    ]
+  },
+  {
+    "Page 38": [
+      "# cd /home/images  ",
+      "# ls \uff1c\u30a4\u30e1\u30fc\u30b8\u30d5\u30a1\u30a4\u30eb\u540d\uff1e  ",
+      "# ls haasctl_ xxxx_comp .qcow2 ",
+      "# cd /tmp ",
+      "# ls \uff1cXML\u30d5\u30a1\u30a4\u30eb \u540d\uff1e ",
+      "# ls haasctl_ xxxx.xml ",
+      "# cd /home/im ages ",
+      "# md5sum \uff1c\u30a4\u30e1\u30fc\u30b8\u30d5\u30a1\u30a4\u30eb\u540d\uff1e  ",
+      "# cd /tmp ",
+      "# md5sum \uff1cXML\u30d5\u30a1\u30a4\u30eb \u540d\uff1e "
+    ]
+  },
+  {
+    "Page 39": [
+      "# md5sum haasctl_ xxxx_comp.qcow2 ",
+      "# md5sum haasctl_ xxxx.xml ",
+      "# cd /home/images  ",
+      "# qemu-img convert -f qcow2 -O qcow2 \uff1c\u5727\u7e2e\u30d5\u30a1\u30a4\u30eb\u540d \uff1e \uff1c\u975e\u5727\u7e2e\u30d5\u30a1\u30a4\u30eb\u540d \uff1e ",
+      "# cd /tmp ",
+      "# mv \uff1c\u5909\u66f4\u524d\u306e XML\u30d5\u30a1\u30a4\u30eb\u540d\uff1e  \uff1c\u5909\u66f4\u5f8c\u306e XML\u30d5\u30a1\u30a4\u30eb\u540d\uff1e  "
+    ]
+  },
+  {
+    "Page 40": [
+      "# vi / tmp/\uff1cXML\u30d5\u30a1\u30a4\u30eb \u540d\uff1e "
+    ]
+  },
+  {
+    "Page 41": []
+  },
+  {
+    "Page 42": [
+      "# virsh define /tmp/\uff1cXML\u30d5\u30a1\u30a4\u30eb \u540d\uff1e ",
+      "# virsh define / tmp/haasctl00_ xxxx.xml ",
+      "# virsh start \uff1cVM\u540d\uff1e ",
+      "# virsh start ccc...c "
+    ]
+  },
+  {
+    "Page 43": [
+      "# virsh console <VM\u540d> ",
+      "# nmcli c mod ens2 autoconnect yes  ",
+      "# nmcli c mod ens3 autoconnect yes  "
+    ]
+  },
+  {
+    "Page 44": [
+      "# virsh console <VM\u540d> ",
+      "# cd /root/after_config/inventories/  ",
+      "# vi 01_interface_ip_address_change_invent ory.yml "
+    ]
+  },
+  {
+    "Page 45": [
+      "# vi 01_interface_ip_address_change_inventory.yml  ",
+      "#    - # extoperation_nw:  ",
+      "#      conn_name:        ens7                # Conditional  ",
+      "#      ip_address:       192.168.60.16     # Conditional  ",
+      "#      prefix:           24                   # Conditional  ",
+      "#      dns:              8.8.8.8              # Optional  "
+    ]
+  },
+  {
+    "Page 46": [
+      "# ip a ",
+      "# cd /root/after_config  ",
+      "# ./01_interface_ip_address_change.sh  ",
+      "# ./01_interface_ip_address_change.sh  ",
+      "# ip a "
+    ]
+  },
+  {
+    "Page 47": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e ",
+      "# exit ",
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e "
+    ]
+  },
+  {
+    "Page 48": [
+      "# cd /root/after_config/inventories/  ",
+      "# vi 02_construction_change_inventory.yml  ",
+      "# vi 02_construction_change_inventory.yml  "
+    ]
+  },
+  {
+    "Page 49": []
+  },
+  {
+    "Page 50": [
+      "# ip a ",
+      "# cd /root/after_config  ",
+      "# ./02_construction_change.sh  ",
+      "# ./02_construction_change.sh  "
+    ]
+  },
+  {
+    "Page 51": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# ip a ",
+      "# pcs status  ",
+      "# exit "
+    ]
+  },
+  {
+    "Page 52": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# cd zabbix/  ",
+      "# vi zbx_inventory.ini  "
+    ]
+  },
+  {
+    "Page 53": [
+      "# cd /root/zabbix/  ",
+      "# ./setup_zabbix.sh  ",
+      "# ./host_show.sh  ",
+      "# ./host_interface.sh \uff1cHaaS PM \u306e\u30db\u30b9\u30c8\u540d\uff1e  "
+    ]
+  },
+  {
+    "Page 54": [
+      "# ipmitool lan print | grep \"IP Address  \"  ",
+      "# ipmitool lan print | grep \"IP Address  \"  ",
+      "# ./hostinterface_update.sh \uff1cHaaS PM \u306e\u30db\u30b9\u30c8\u540d\uff1e  \uff1cBMC\u306eIP\u30a2\u30c9\u30ec\u30b9 \uff1e ",
+      "# ./host_interface.sh \uff1cHaaS PM \u306e\u30db\u30b9\u30c8\u540d\uff1e  "
+    ]
+  },
+  {
+    "Page 55": [
+      "# ./host_show.sh  ",
+      "# cd /home/maintenance_tools /zabbix ",
+      "# ./host_taskcreate.sh  \uff1c\u30db\u30b9\u30c8\u540d\uff1e  ",
+      "# vi /srv/common/host_information.yml  ",
+      "# vi /srv/common/host_information.yml  "
+    ]
+  },
+  {
+    "Page 56": [
+      "# exit ",
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# cd /root/config_update_scrip ts ",
+      "# ./_haas_ctl_info.sh -mode get  "
+    ]
+  },
+  {
+    "Page 57": [
+      "# ./_haas_ctl_info.sh -mode set -target \uff1c\u5909\u66f4\u524d\u306e VM\u540d\uff1e -vm_name \uff1c\u5909",
+      "# ./_haas_ctl_info.sh -mode get  ",
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e "
+    ]
+  },
+  {
+    "Page 58": [
+      "# cd /root/config_update_scripts  ",
+      "# ./_generate_oauth2_client.sh \uff1cClient Name \uff1e ",
+      "# ./_generate_oauth2_client.sh ne -ops "
+    ]
+  },
+  {
+    "Page 59": [
+      "# cd /root  ",
+      "# tar -xvf if_mon_cronset.tar  ",
+      "# rm -f if_mon_cronset.tar  ",
+      "# virsh list  --all ",
+      "# virsh list  --all ",
+      "# cd /root ",
+      "# vi cronSetting.cfg  "
+    ]
+  },
+  {
+    "Page 60": [
+      "# cd /root ",
+      "# crontab cronSetting.cfg  ",
+      "# crontab -l ",
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e "
+    ]
+  },
+  {
+    "Page 61": [
+      "# useradd ne -ops ",
+      "# passwd ne -ops ",
+      "# passwd: \u3059\u3079\u3066\u306e\u8a8d\u8a3c\u30c8\u30fc\u30af\u30f3\u304c\u6b63\u3057\u304f\u66f4\u65b0\u3067\u304d\u307e\u3057\u305f\u3002  ",
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# chown -R ne-ops:ne-ops /srv/files  "
+    ]
+  },
+  {
+    "Page 62": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# cd /srv/nginx  ",
+      "# mkdir haas  ",
+      "# cd haas  ",
+      "# openssl genrsa -aes256 -out ./haas. key 2048 "
+    ]
+  },
+  {
+    "Page 63": [
+      "# openssl req -new -key ./haas. key -out haas.csr  ",
+      "# openssl ca -in <CSR\u30d5\u30a1\u30a4\u30eb\u683c\u7d0d\u30c7\u30a3\u30ec\u30af\u30c8\u30ea >/haas.csr -out <\u8a3c\u660e\u66f8\u767a\u884c\u30c7\u30a3\u30ec\u30af\u30c8\u30ea >/haas.crt "
+    ]
+  },
+  {
+    "Page 64": [
+      "# Sign the certificate? [y/n]:  \u2605\u300cy\u300d\u3092\u5165\u529b\u3057\u3001 Enter\u62bc\u4e0b ",
+      "# cd /srv/nginx  ",
+      "# rm haas.key haas.crt  ",
+      "# cd /tmp ",
+      "# cp haas.crt /srv/nginx/  ",
+      "# cp \uff1c\u30eb\u30fc\u30c8\u8a3c\u660e\u66f8 (NW-OPS)\uff1e /srv/common/root_cert_nw -ops.pem "
+    ]
+  },
+  {
+    "Page 65": [
+      "# cp \uff1c\u30eb\u30fc\u30c8\u8a3c\u660e\u66f8 (NE-OPS)\uff1e /srv/common/root_cert_ne -ops.pem ",
+      "# cp \uff1c5GC\u306eCA\u516c\u958b\u9375\uff1e /etc/ssh/ ",
+      "# chown root:root /etc/ssh/ \uff1c5GC\u306eCA\u516c\u958b\u9375\uff1e ",
+      "# cd /srv/ nginx ",
+      "# md5sum haas.crt  ",
+      "# cd /srv/common  ",
+      "# md5sum root_cert_nw -ops.pem ",
+      "# md5sum root_cert_ne -ops.pem ",
+      "# cd /etc/ssh  "
+    ]
+  },
+  {
+    "Page 66": [
+      "# md5sum haas.crt  ",
+      "# md5sum root_cert_nw -ops.pem ",
+      "# md5sum root_cert_ne -ops.pem ",
+      "# md5sum \uff1c5GC\u306eCA\u516c\u958b\u9375\uff1e ",
+      "# cd /srv/common  ",
+      "# cat root_cert_nw -ops.pem > cacert.pem  ",
+      "# cat root_cert_ne -ops.pem >> cacert.pem  ",
+      "# cd /srv/nginx/haas  ",
+      "# cp haas.key haas2.key  ",
+      "# openssl rsa -in haas2.key -out haas.key  ",
+      "# cp haas. key /srv/nginx/  "
+    ]
+  },
+  {
+    "Page 67": [
+      "# openssl rsa -in haas2.key -out haas.key  ",
+      "# pcs status  ",
+      "# pcs status  ",
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d \uff1e@\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e "
+    ]
+  },
+  {
+    "Page 68": [
+      "# pcs node standby \uff1cACT\u306e\u30ce\u30fc\u30c9\u540d \uff1e ",
+      "# pcs node unstandby \uff1c\u30ce\u30fc\u30c9\u540d\uff1e  ",
+      "# pcs status  ",
+      "# pcs status  ",
+      "# exit "
+    ]
+  },
+  {
+    "Page 69": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e ",
+      "# cd /home/ne -ops ",
+      "# mkdir .ssh  ",
+      "# chmod 700 .ssh  ",
+      "# cd /etc/ssh  ",
+      "# vi sshd_config  "
+    ]
+  },
+  {
+    "Page 70": [
+      "# BEGIN ANSIBLE MANAGED BLOCK EOF  ",
+      "# END ANSIBLE MANAGED BLOCK EOF  ",
+      "# systemctl restart sshd.service  ",
+      "# systemctl status sshd.service  ",
+      "# systemctl status sshd.service  ",
+      "# exit "
+    ]
+  },
+  {
+    "Page 71": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# openssl s_client -CAfile /srv/common/cacert.pem -connect \uff1cNW-OPS\u306eFQDN",
+      "# openssl s_client -CAfile /srv/common/cacert.pem -connect \uff1cNW-OPS\u306eFQDN",
+      "# openssl s_client -CAfile /srv/common/cacert.pem -connect \uff1cNE-OPS\u306eFQDN"
+    ]
+  },
+  {
+    "Page 72": [
+      "# cd /home/ images ",
+      "# rm \uff1c\u5727\u7e2e\u30a4\u30e1\u30fc\u30b8\u30d5\u30a1\u30a4\u30eb\u540d\uff1e  "
+    ]
+  },
+  {
+    "Page 73": [
+      "# cd /tmp ",
+      "# rm \uff1cXML\u30d5\u30a1\u30a4\u30eb\u540d\uff1e  ",
+      "# exit "
+    ]
+  },
+  {
+    "Page 74": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d \uff1e@\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e ",
+      "# cat /root/.bash_profile  ",
+      "# .bash_profile  ",
+      "# Get the aliases and functions  ",
+      "# User specific environment and startup programs  "
+    ]
+  },
+  {
+    "Page 75": [
+      "# cat /etc/rsyslog.d/10 -docker.conf  "
+    ]
+  },
+  {
+    "Page 76": [
+      "# cat /etc/redhat -release ",
+      "# cat /etc/redhat -release ",
+      "# uname -a ",
+      "# uname -a ",
+      "# exit "
+    ]
+  },
+  {
+    "Page 77": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e ",
+      "# cat /etc/redhat -release ",
+      "# cat /etc/redhat -release ",
+      "# uname -a ",
+      "# uname -a "
+    ]
+  },
+  {
+    "Page 78": [
+      "# exit "
+    ]
+  },
+  {
+    "Page 79": [
+      "# ip a ",
+      "# ip a "
+    ]
+  },
+  {
+    "Page 80": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e ",
+      "# ip a ",
+      "# ip a "
+    ]
+  },
+  {
+    "Page 81": [
+      "# exit ",
+      "# chronyc sources  ",
+      "# chronyc sources  "
+    ]
+  },
+  {
+    "Page 82": [
+      "# exit "
+    ]
+  },
+  {
+    "Page 83": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8IP\u30a2\u30c9\u30ec\u30b9 \uff1e ",
+      "# chronyc sources  ",
+      "# chronyc sources  "
+    ]
+  },
+  {
+    "Page 84": [
+      "# exit "
+    ]
+  },
+  {
+    "Page 85": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# pacemakerd --version "
+    ]
+  },
+  {
+    "Page 86": [
+      "# corosync -v ",
+      "# drbdadm --version "
+    ]
+  },
+  {
+    "Page 87": [
+      "# cobbler --version ",
+      "# cobbler --version ",
+      "# docker --version "
+    ]
+  },
+  {
+    "Page 88": [
+      "# docker exec -it awx_task /bin/bash  ",
+      "# docker exec -it awx_task /bin/bash  "
+    ]
+  },
+  {
+    "Page 89": [
+      "# docker exec -it zabbix_server /bin/bash  "
+    ]
+  },
+  {
+    "Page 90": [
+      "# zabbix_agentd --version "
+    ]
+  },
+  {
+    "Page 91": [
+      "# docker exec -it gitlab /bin/bash  ",
+      "# docker exec -it postgres /bin/bash  "
+    ]
+  },
+  {
+    "Page 92": [
+      "# docker exec -it nginx /bin/bash  ",
+      "# docker exec -it cmdb /bin/bash  "
+    ]
+  },
+  {
+    "Page 93": [
+      "# ssh \uff1c\u30e6\u30fc\u30b6\u540d\uff1e @\uff1cHaaS VM \u306e\u5916\u90e8VIP\uff1e ",
+      "# pcs status  "
+    ]
+  },
+  {
+    "Page 94": []
+  },
+  {
+    "Page 95": []
+  }
+]
